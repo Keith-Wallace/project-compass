@@ -1,0 +1,200 @@
+.course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.course-row {
+  display: grid;
+  grid-template-columns: 1fr 180px 80px 110px 130px;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: #FFFFFF;
+  border: 1px solid #DDE2EE;
+  transition: background 0.15s, border-color 0.15s;
+  position: relative;
+}
+
+.course-row:hover {
+  background: #F5F7FA;
+  border-color: #C8D0E0;
+}
+
+.course-row.deleting {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.course-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0D1B4B;
+  white-space: wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.course-provider {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: #64748B;
+  margin-top: 3px;
+}
+
+.course-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.course-credits {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: #1DC8A8;
+  text-align: center;
+}
+
+.course-credits-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+.category-badge {
+  display: inline-block;
+  background: #EEF1F7;
+  border: 1px solid #DDE2EE;
+  padding: 3px 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: #475569;
+  letter-spacing: 0.05em;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.course-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-edit {
+  background: transparent;
+  border: 1px solid #C8D0E0;
+  color: #64748B;
+  padding: 6px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-edit:hover {
+  border-color: #1DC8A8;
+  color: #1DC8A8;
+}
+
+.btn-delete {
+  background: transparent;
+  border: 1px solid #C8D0E0;
+  color: #64748B;
+  padding: 6px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.btn-delete:hover {
+  border-color: #EF4444;
+  color: #EF4444;
+  background: #FEF2F2;
+}
+
+/* Confirm delete overlay */
+.confirm-overlay {
+  position: absolute;
+  inset: 0;
+  background: #F5F7FAee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 5;
+  backdrop-filter: blur(2px);
+}
+
+.confirm-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: #0D1B4B;
+  letter-spacing: 0.04em;
+}
+
+.btn-confirm-delete {
+  background: #EF4444;
+  border: none;
+  color: white;
+  padding: 7px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: background 0.15s;
+}
+
+.btn-confirm-delete:hover {
+  background: #DC2626;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid #C8D0E0;
+  color: #64748B;
+  padding: 7px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+}
+
+.btn-cancel:hover {
+  border-color: #94A3B8;
+  color: #475569;
+}
+
+/* List header */
+.course-list-header {
+  display: grid;
+  grid-template-columns: 1fr 180px 80px 110px 130px;
+  gap: 16px;
+  padding: 8px 20px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #94A3B8;
+  align-items: end;
+}
+
+.col-right { text-align: right; }
+.col-center { text-align: center; }
+
+.cert-attached,
+.cert-not-attached {
+  color: green;
+  font-size: 12px;
+}
+
+.cert-not-attached {
+  color: red;
+}
