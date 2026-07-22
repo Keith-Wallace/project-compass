@@ -28,7 +28,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function AppRouter() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/project-compass">
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
