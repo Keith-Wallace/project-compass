@@ -1,0 +1,398 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+.form-root {
+  min-height: 100vh;
+  background: #F5F7FA;
+  color: #0D1B4B;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.form-header {
+  border-bottom: 1px solid #DDE2EE;
+  padding: 16px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F5F7FA;
+}
+
+.form-header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s;
+}
+
+.back-btn:hover { color: #1DC8A8; }
+
+.form-logo {
+  display: flex;
+  align-items: center;
+}
+
+.form-body {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 30px 48px 80px;
+}
+
+.form-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1DC8A8;
+  margin-bottom: 10px;
+}
+
+.form-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: -0.8px;
+  color: #0D1B4B;
+  margin: 0 0 48px;
+  line-height: 1.15;
+}
+
+.field-group {
+  margin-bottom: 16px;
+}
+
+.field-label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748B;
+  margin-bottom: 8px;
+}
+
+.field-required {
+  color: #1DC8A8;
+  margin-left: 3px;
+}
+
+.field-input,
+.field-select,
+.field-textarea {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid #DDE2EE;
+  color: #0D1B4B;
+  padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  appearance: none;
+}
+
+.field-input:focus,
+.field-select:focus,
+.field-textarea:focus {
+  border-color: #1DC8A8;
+}
+
+.field-input::placeholder,
+.field-textarea::placeholder {
+  color: #C8D0E0;
+}
+
+.field-input--error,
+.field-select--error {
+  border-color: #DC2626 !important;
+}
+
+.field-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748B' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 36px;
+}
+
+.field-select option {
+  background: #FFFFFF;
+}
+
+.field-textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: #94A3B8;
+  margin-top: 6px;
+  font-weight: 300;
+}
+
+.field-error-msg {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: #DC2626;
+  margin-top: 5px;
+  letter-spacing: 0.02em;
+}
+
+.form-divider {
+  border: none;
+  border-top: 1px solid #DDE2EE;
+  margin: 40px 0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 40px;
+}
+
+.btn-submit {
+  background: #1DC8A8;
+  color: #FFFFFF;
+  border: none;
+  padding: 13px 32px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  min-width: 160px;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: #17B398;
+  transform: translateY(-1px);
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid #C8D0E0;
+  color: #64748B;
+  padding: 13px 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-cancel:hover {
+  border-color: #94A3B8;
+  color: #475569;
+}
+
+.btn-ghost-sm {
+  background: transparent;
+  border: 1px solid #DDE2EE;
+  color: #64748B;
+  padding: 6px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-ghost-sm:hover:not(:disabled) {
+  border-color: #94A3B8;
+  color: #475569;
+}
+
+.error-banner {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+  padding: 14px 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  margin-bottom: 32px;
+}
+
+.success-banner {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  color: #16A34A;
+  padding: 14px 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  margin-bottom: 32px;
+}
+
+/* ── Credit Rows ────────────────────────────────────────── */
+.credits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.credit-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 200px 36px;
+  gap: 8px;
+  align-items: start;
+}
+
+.credit-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.credit-col input[type="number"],
+.credit-col input::-webkit-outer-spin-button,
+.credit-col input::-webkit-inner-spin-button {
+  /* Chrome, Safari, Edge, Opera */
+  -webkit-appearance: none;
+  margin: 0;
+  
+  /* Firefox */
+  -moz-appearance: textfield;
+}
+
+.credit-remove-btn {
+  margin-top: 0;
+  width: 36px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #DDE2EE;
+  color: #94A3B8;
+  font-size: 18px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.credit-remove-btn:hover:not(:disabled) {
+  border-color: #DC2626;
+  color: #DC2626;
+  background: #FEF2F2;
+}
+
+.credit-remove-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.add-credit-btn {
+  background: transparent;
+  border: 1px dashed #1DC8A8;
+  color: #1DC8A8;
+  padding: 9px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+  text-align: left;
+}
+
+.add-credit-btn:hover {
+  background: rgba(29, 200, 168, 0.06);
+}
+
+/* ── Certificate Upload ─────────────────────────────────── */
+.cert-upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px;
+  border: 1px dashed #C8D0E0;
+  cursor: pointer;
+  background: #FAFBFC;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+}
+
+.cert-upload-zone:hover {
+  border-color: #1DC8A8;
+  background: rgba(29, 200, 168, 0.04);
+}
+
+.cert-upload-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.cert-upload-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: #64748B;
+}
+
+.cert-upload-hint {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: #94A3B8;
+  text-transform: uppercase;
+}
+
+.cert-upload-input {
+  display: none;
+}
+
+.cert-file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #F5F7FA;
+  border: 1px solid #DDE2EE;
+}
+
+.cert-file-name {
+  font-size: 13px;
+  color: #0D1B4B;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .form-header { padding: 20px 24px; }
+  .form-body   { padding: 40px 24px 60px; }
+  .field-row   { grid-template-columns: 1fr; }
+  .credit-row  { grid-template-columns: 1fr 100px 36px; }
+}
