@@ -3,7 +3,6 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { getCategories } from '../../../shared/api/courseCategoriesAPI'
 import { supabase } from '../../../supabase/supabase'
 import SelectAutocomplete from '../../../shared/components/form/select-autocomplete'
-import CredentialFocusSelect from './CreditCredentials'
 import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 
 import '../styles/course-form.css'
@@ -12,9 +11,46 @@ import '../styles/course-form.css'
 const ACCEPTED_TYPES = ['application/pdf']
 const MAX_FILE_MB    = 10
 
-const blankCredit = () => ({ id: crypto.randomUUID(), category_id: '', total_credits: '' })
+// ── local types ──────────────────────────────────────────────
+type CourseCategory = {
+  id: string
+  name: string
+}
 
-function buildCreditRows(existingCredits) {
+type CreditRow = {
+  id: string
+  category_id: string
+  total_credits: string
+}
+
+type ExistingCredit = {
+  id: string
+  category_id: string | null
+  credits_earned: number | string
+}
+
+type Provider = {
+  id: string
+  name?: string
+  [key: string]: unknown
+}
+
+type ExistingCourse = {
+  id: string
+  course_title?: string
+  start_date?: string | null
+  completion_date?: string | null
+  notes?: string | null
+  certificate_url?: string | null
+  other_documents?: string[]
+  provider_id?: string | null
+}
+
+type FormErrors = Record<string, string>
+
+const blankCredit = (): CreditRow => ({ id: crypto.randomUUID(), category_id: '', total_credits: '' })
+
+function buildCreditRows(existingCredits?: ExistingCredit[]): CreditRow[] {
   if (!existingCredits?.length) return [blankCredit()]
   return existingCredits.map((c) => ({
     id:            c.id,
@@ -28,29 +64,29 @@ export default function CourseForm() {
   const location = useLocation()
   const { id }   = useParams()
 
-  const existingCourse = location.state?.course || null
+  const existingCourse = (location.state as { course?: ExistingCourse } | null)?.course || null
   const isEditing      = !!id
 
   // ── form state ────────────────────────────────────────────
   const [title,        setTitle]        = useState(existingCourse?.course_title || '')
-  const [provider,     setProvider]     = useState(null)          // full provider object
+  const [provider,     setProvider]     = useState<Provider | null>(null)          // full provider object
   const [startDate,    setStartDate]    = useState(existingCourse?.start_date?.split('T')[0] || '')
   const [endDate,      setEndDate]      = useState(existingCourse?.completion_date?.split('T')[0] || '')
-  const [credits,      setCredits]      = useState([blankCredit()])
+  const [credits,      setCredits]      = useState<CreditRow[]>([blankCredit()])
   const [notes,        setNotes]        = useState(existingCourse?.notes || '')
-  const [certFile,     setCertFile]     = useState(null)
+  const [certFile,     setCertFile]     = useState<File | null>(null)
   const [existingCert, setExistingCert] = useState(existingCourse?.certificate_url || null)
   const [dragActiveCert, setDragActiveCert] = useState(false)
 
   // Additional / supporting documents (optional, multiple files)
-  const [otherDocs,        setOtherDocs]        = useState([])   // File[] staged for upload
-  const [existingOtherDocs, setExistingOtherDocs] = useState(existingCourse?.other_documents || [])
+  const [otherDocs,        setOtherDocs]        = useState<File[]>([])   // File[] staged for upload
+  const [existingOtherDocs, setExistingOtherDocs] = useState<string[]>(existingCourse?.other_documents || [])
   const [dragActiveDocs,   setDragActiveDocs]   = useState(false)
   const [docsError,        setDocsError]        = useState('')
 
-  const [categories,   setCategories]   = useState([])
+  const [categories,   setCategories]   = useState<CourseCategory[]>([])
   const [submitting,   setSubmitting]   = useState(false)
-  const [errors,       setErrors]       = useState({})
+  const [errors,       setErrors]       = useState<FormErrors>({})
   const [fileError,    setFileError]    = useState('')
   const [success,      setSuccess]      = useState(false)
 
@@ -64,14 +100,14 @@ export default function CourseForm() {
         .select('*')
         .eq('id', existingCourse.provider_id)
         .single()
-        .then(({ data }) => { if (data) setProvider(data) })
+        .then(({ data }: { data: Provider | null }) => { if (data) setProvider(data) })
     }
 
     supabase
       .from('course_category_credits')
       .select('*')
       .eq('course_id', existingCourse.id)
-      .then(({ data }) => {
+      .then(({ data }: { data: ExistingCredit[] | null }) => {
         if (data?.length) setCredits(buildCreditRows(data))
       })
   }, [existingCourse])
@@ -84,17 +120,17 @@ export default function CourseForm() {
   }, [])
 
   // ── credit row handlers ───────────────────────────────────
-  const updateCredit = (rowId, field, val) =>
+  const updateCredit = (rowId: string, field: keyof CreditRow, val: string) =>
     setCredits(prev => prev.map(r => r.id === rowId ? { ...r, [field]: val } : r))
 
   const addCreditRow = () =>
     setCredits(prev => [...prev, blankCredit()])
 
-  const removeCreditRow = (rowId) =>
+  const removeCreditRow = (rowId: string) =>
     setCredits(prev => prev.length === 1 ? prev : prev.filter(r => r.id !== rowId))
 
   // ── file handler ──────────────────────────────────────────
-  const processCertFile = (file) => {
+  const processCertFile = (file?: File | null) => {
     setFileError('')
     if (!file) return
     if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -108,7 +144,7 @@ export default function CourseForm() {
     setCertFile(file)
   }
 
-  const handleFile = (e) => {
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     processCertFile(e.target.files?.[0])
     e.target.value = '' // allow re-selecting the same file later
   }
@@ -119,31 +155,31 @@ export default function CourseForm() {
   }
 
   // Drag-and-drop is just an alternate way to feed processCertFile a file
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
   }
-  const handleCertDragEnter = (e) => {
+  const handleCertDragEnter = (e: React.DragEvent) => {
     e.preventDefault()
     setDragActiveCert(true)
   }
-  const handleCertDragLeave = (e) => {
+  const handleCertDragLeave = (e: React.DragEvent) => {
     e.preventDefault()
     setDragActiveCert(false)
   }
-  const handleCertDrop = (e) => {
+  const handleCertDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setDragActiveCert(false)
     processCertFile(e.dataTransfer.files?.[0])
   }
 
   // ── additional documents handlers (optional, multiple) ─────
-  const processOtherDocFiles = (fileList) => {
+  const processOtherDocFiles = (fileList: FileList | null) => {
     const incoming = Array.from(fileList || [])
     if (!incoming.length) return
     setDocsError('')
 
-    const accepted = []
+    const accepted: File[] = []
     for (const file of incoming) {
       if (!ACCEPTED_TYPES.includes(file.type)) {
         setDocsError('Only PDF files are accepted.')
@@ -158,34 +194,34 @@ export default function CourseForm() {
     if (accepted.length) setOtherDocs(prev => [...prev, ...accepted])
   }
 
-  const handleOtherDocsInput = (e) => {
+  const handleOtherDocsInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     processOtherDocFiles(e.target.files)
     e.target.value = ''
   }
 
-  const handleDocsDragEnter = (e) => {
+  const handleDocsDragEnter = (e: React.DragEvent) => {
     e.preventDefault()
     setDragActiveDocs(true)
   }
-  const handleDocsDragLeave = (e) => {
+  const handleDocsDragLeave = (e: React.DragEvent) => {
     e.preventDefault()
     setDragActiveDocs(false)
   }
-  const handleDocsDrop = (e) => {
+  const handleDocsDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setDragActiveDocs(false)
     processOtherDocFiles(e.dataTransfer.files)
   }
 
-  const removeOtherDoc = (idx) =>
+  const removeOtherDoc = (idx: number) =>
     setOtherDocs(prev => prev.filter((_, i) => i !== idx))
 
-  const removeExistingOtherDoc = (idx) =>
+  const removeExistingOtherDoc = (idx: number) =>
     setExistingOtherDocs(prev => prev.filter((_, i) => i !== idx))
 
   // ── validation ────────────────────────────────────────────
-  const validate = () => {
-    const e = {}
+  const validate = (): FormErrors => {
+    const e: FormErrors = {}
     if (!title.trim())  e.title    = 'Course title is required.'
     if (!provider)      e.provider = 'Please select a provider.'
     if (!endDate)       e.endDate  = 'Completion date is required.'
@@ -204,7 +240,7 @@ export default function CourseForm() {
   }
 
   // ── upload certificate ────────────────────────────────────
-  const uploadCertificate = async (courseId) => {
+  const uploadCertificate = async (courseId: string) => {
     if (!certFile) return existingCert ?? null
 
     const ext  = certFile.name.split('.').pop()
@@ -219,7 +255,7 @@ export default function CourseForm() {
   }
 
   // ── upload additional/supporting documents ──────────────────
-  const uploadOtherDocuments = async (courseId) => {
+  const uploadOtherDocuments = async (courseId: string) => {
     const paths = [...existingOtherDocs]
 
     for (const file of otherDocs) {
@@ -238,11 +274,11 @@ export default function CourseForm() {
   }
 
   // ── submit ────────────────────────────────────────────────
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     const validation = validate()
-    if (Object.keys(validation).length) {
+    if (Object.keys(validation).length || !provider) {
       setErrors(validation)
       return
     }
@@ -252,6 +288,8 @@ export default function CourseForm() {
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) throw new Error('You must be signed in to log a course.')
 
       const coursePayload = {
         course_title:     title.trim(),
@@ -279,6 +317,8 @@ export default function CourseForm() {
         if (error) throw error
         courseId = data.id
       }
+
+      if (!courseId) throw new Error('Course ID is missing after save.')
 
       // Upload certificate and patch URL
       const certUrl = await uploadCertificate(courseId)
@@ -316,7 +356,8 @@ export default function CourseForm() {
       setSuccess(true)
       setTimeout(() => navigate('/'), 1200)
     } catch (err) {
-      setErrors(prev => ({ ...prev, submit: err.message }))
+      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+      setErrors(prev => ({ ...prev, submit: message }))
     } finally {
       setSubmitting(false)
     }
@@ -568,7 +609,7 @@ export default function CourseForm() {
 
               {(existingOtherDocs.length > 0 || otherDocs.length > 0) && (
                 <div className="cert-file-list">
-                  {existingOtherDocs.map((path, i) => (
+                  {existingOtherDocs.map((_, i) => (
                     <div className="cert-file-row" key={`existing-doc-${i}`}>
                       <span className="cert-file-name">📄 Document {i + 1} on file</span>
                       <button
