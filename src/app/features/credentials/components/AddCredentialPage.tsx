@@ -22,8 +22,6 @@ import type {
 import CredentialRequirementsPanel from './CredentialRequirementsPanel'
 import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 
-import Autocomplete from '../../../shared/components/form/Autocomplete'
-
 // NOTE: reusing the same stylesheet as the "Log a Course" page (course-form.css)
 // so both forms share the .form-root / .form-header / .form-body / .field-group
 // HTML structure. Adjust this relative path if the courses feature folder lives
@@ -287,7 +285,7 @@ export default function AddCredentialPage() {
         <form onSubmit={(e) => e.preventDefault()}>
 
           {/* 1. Credential Name — autocomplete */}
-          <div class="field-row">
+          <div className="field-row">
             <div className="field-group provider-autocomplete" ref={autocompleteRef}>
               <label className="field-label" htmlFor="credentialInput">
                 Credential Name <span className="field-required">*</span>
