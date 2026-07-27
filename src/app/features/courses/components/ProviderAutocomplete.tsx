@@ -12,19 +12,34 @@
 */
 
 import { useState, useEffect, useRef } from "react";
+import type { ChangeEvent } from "react";
 import { supabase } from '../../../supabase/supabase'
 
-export default function ProviderAutocomplete({ value, onChange }) {
+export interface Provider {
+  id: string;
+  name: string;
+  address?: string | null;
+  website?: string | null;
+  registry_id?: string | null;
+  nasba_id?: string | null;
+}
+
+interface ProviderAutocompleteProps {
+  value: Provider | null;
+  onChange: (provider: Provider | null) => void;
+}
+
+export default function ProviderAutocomplete({ value, onChange }: ProviderAutocompleteProps) {
   const [query, setQuery]       = useState(value?.name ?? "");
-  const [results, setResults]   = useState([]);
+  const [results, setResults]   = useState<Provider[]>([]);
   const [open, setOpen]         = useState(false);
   const [loading, setLoading]   = useState(false);
-  const containerRef            = useRef(null);
+  const containerRef            = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
   useEffect(() => {
-    const handler = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
@@ -32,20 +47,24 @@ export default function ProviderAutocomplete({ value, onChange }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Sync input if parent clears selection
-  useEffect(() => {
-    if (!value) setQuery("");
-    else setQuery(value.name);
-  }, [value]);
+  // Sync input if parent clears/changes selection.
+  // Adjusted directly during render (rather than in a useEffect) so the
+  // input reflects the new value in the same render pass instead of
+  // flashing the old query and re-rendering a second time after the effect fires.
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setQuery(value ? value.name : "");
+  }
 
-  const search = async (text) => {
+  const search = async (text: string) => {
     if (!text.trim()) {
       setResults([]);
       setOpen(false);
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error }: { data: Provider[] | null; error: unknown } = await supabase
       .from("providers")
       .select("id, name, address, website, registry_id, nasba_id")
       .ilike("name", `%${text}%`)
@@ -57,14 +76,14 @@ export default function ProviderAutocomplete({ value, onChange }) {
     setOpen(true);
   };
 
-  const handleInput = (e) => {
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     setQuery(text);
     if (value) onChange(null); // clear selection when user retypes
     search(text);
   };
 
-  const handleSelect = (provider) => {
+  const handleSelect = (provider: Provider) => {
     onChange(provider);
     setQuery(provider.name);
     setResults([]);
@@ -116,7 +135,7 @@ export default function ProviderAutocomplete({ value, onChange }) {
             <li className="pac-option pac-option--meta">No providers found</li>
           )}
           {!loading &&
-            results.map((p) => (
+            results.map((p: Provider) => (
               <li
                 key={p.id}
                 className="pac-option"
