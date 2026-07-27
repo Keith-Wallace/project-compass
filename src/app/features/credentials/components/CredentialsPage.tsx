@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { fetchUserCredentials } from '../api/credentials.queries'
+import { fetchUserCredentials, deleteUserCredential } from '../api/credentials.queries'
 import type { UserCredentialWithDetails } from '../api/credentials.queries'
 import CredentialList from './CredentialsList'
 import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
@@ -31,18 +31,24 @@ export default function CredentialsPage() {
     }
   }
 
-  useEffect(() => { fetchCredentials() }, [])
+  useEffect(() => {
+     // eslint-disable-next-line react-hooks/set-state-in-effect -- TODO: a legitimate mount-time data fetch with no derivable-state anti-pattern, same reasoning as the EditCredentialPage fetch effect.
+    fetchCredentials()
+  }, []) 
 
   const handleEdit = (credential: UserCredentialWithDetails) => {
     navigate(`/credentials/${credential.id}/edit`, { state: { credential } })
   }
 
   const handleDelete = async (id: string): Promise<void> => {
+    setSubmitting(true)
     try {
       await deleteUserCredential(id)
       setCredentials(prev => prev.filter(c => c.id !== id))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
