@@ -16,7 +16,7 @@
  * (e.g. credentials catalog) rather than living directly on user_credentials.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export interface UserCredentialOption {
   id: string;

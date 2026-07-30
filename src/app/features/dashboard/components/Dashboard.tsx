@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCourses, deleteCourse, type Course } from '../../courses/api/coursesAPI'
 import { supabase } from '../../../supabase/supabase'
-import CourseList from './CourseList'
+import CourseList from '../../courses/components/CourseList'
 import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 
 import '../styles/dashboard.css'
@@ -125,7 +125,14 @@ export default function Dashboard() {
           {/* Course List Section */}
           <div className="section-header">
             <span className="section-title">Course History</span>
-            <span className="section-count">{courses.length} records</span>
+            <div className="section-header-right">
+              <span className="section-count">{courses.length} records</span>
+              {courses.length > 0 && (
+                <button className="btn-link" onClick={() => navigate('/courses')}>
+                  View All →
+                </button>
+              )}
+            </div>
           </div>
 
           {loading ? (
@@ -140,7 +147,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <CourseList
-              courses={courses}
+              courses={courses.slice(0, 3)}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />

@@ -1,43 +1,40 @@
 import { useState } from 'react'
+import type { Course, CourseCategoryCredit } from '../api/coursesAPI'
 
 import '../styles/course-list.css'
 
+interface CourseListProps {
+  courses: Course[]
+  onEdit: (course: Course) => void
+  onDelete: (id: string) => Promise<void>
+}
 
-export default function CourseList({ courses, onEdit, onDelete }) {
-  const [confirmId, setConfirmId] = useState(null)
-  const [deletingId, setDeletingId] = useState(null)
+export default function CourseList({ courses, onEdit, onDelete }: CourseListProps) {
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const handleDeleteClick = (id) => setConfirmId(id)
+  const handleDeleteClick = (id: string) => setConfirmId(id)
   const handleCancel = () => setConfirmId(null)
 
-  const handleConfirmDelete = async (id) => {
+  const handleConfirmDelete = async (id: string) => {
     setConfirmId(null)
     setDeletingId(id)
     await onDelete(id)
     setDeletingId(null)
   }
 
-  const formatDate = (dateStr) => {
+  const formatDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return '—'
     return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'short', day: 'numeric', year: 'numeric'
     })
   }
 
-  const getTotalCredits = (course) => {
+  const getTotalCredits = (course: Course) => {
     const credits = course.course_category_credits
     if (!credits || credits.length === 0) return '—'
-    const total = credits.reduce((sum, c) => sum + parseFloat(c.credits_earned || 0), 0)
+    const total = credits.reduce((sum: number, c: CourseCategoryCredit) => sum + parseFloat(String(c.credits_earned ?? 0)), 0)
     return total % 1 === 0 ? String(total) : total.toFixed(1)
-  }
-
-  const getAllCategories = (course) => {
-    const credits = course.course_category_credits
-    if (!credits || credits.length === 0) return []
-    return credits
-      .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
-      .map(c => c.course_categories?.name)
-      .filter(Boolean)
   }
 
   return (

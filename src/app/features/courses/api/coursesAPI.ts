@@ -1,10 +1,12 @@
 import { supabase } from '../../../supabase/supabase';
 
-interface CourseCategoryCredit {
+export interface CourseCategoryCredit {
   credits_earned: string | number
 }
 
 export interface Course {
+  certificate_url: string | null;
+  course_title: string | null;
   id: string
   provider: string | null
   completion_date: string

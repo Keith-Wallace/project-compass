@@ -600,7 +600,7 @@ export default function CourseForm() {
 
               {(existingOtherDocs.length > 0 || otherDocs.length > 0) && (
                 <div className="cert-file-list">
-                  {existingOtherDocs.map((path, i) => (
+                  {existingOtherDocs.map((_path, i) => (
                     <div className="cert-file-row" key={`existing-doc-${i}`}>
                       <span className="cert-file-name">📄 Document {i + 1} on file</span>
                       <button

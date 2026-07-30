@@ -1,0 +1,34 @@
+/* CourseListPage.tsx — page-level chrome for the full /courses list view.
+   Mirrors the credentials-page.css pattern: page header block only.
+   Shared classes (section-header, btn-primary, loading-state, empty-state,
+   error-msg, btn-cancel, etc.) are defined elsewhere and intentionally not
+   duplicated here. */
+
+.courses-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  font-family: 'DM Sans', sans-serif;
+  color: #0D1B4B;
+}
+
+.courses-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.courses-page-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: #0D1B4B;
+  margin: 0 0 4px;
+}
+
+.courses-page-subtitle {
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
+}
