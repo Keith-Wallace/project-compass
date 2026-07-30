@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ChangeEvent } from 'react';
 
 const styles = `
     ul {
@@ -21,12 +22,16 @@ const styles = `
     background-color: #f0f0f0;
     }
 `
- 
-const Autocomplete = ({ options }) => {
+
+interface AutocompleteProps {
+  options: string[];
+}
+
+const Autocomplete = ({ options }: AutocompleteProps) => {
   const [inputValue, setInputValue] = useState('');
-  const [filteredOptions, setFilteredOptions] = useState(options);
+  const [filteredOptions, setFilteredOptions] = useState<string[]>(options);
  
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
     const filtered = options.filter((option) =>
@@ -35,7 +40,7 @@ const Autocomplete = ({ options }) => {
     setFilteredOptions(filtered);
   };
  
-  const handleOptionSelect = (option) => {
+  const handleOptionSelect = (option: string) => {
     setInputValue(option);
     setFilteredOptions([]);
   };

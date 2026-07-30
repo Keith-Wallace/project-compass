@@ -45,9 +45,9 @@ export default function EditCredentialPage() {
     if (!id || !userCredential) return
 
     // CredentialForm currently only edits status_id and cycle_start_date.
-    // credential_id and cycle_end_date aren't exposed in the form yet, so
-    // carry the existing values through for now.
-    // TODO: revisit once CredentialForm supports editing these fields directly.
+    // cycle_end_date isn't exposed in the form yet, so carry the existing
+    // value through for now.
+    // TODO: revisit once CredentialForm supports editing cycle_end_date directly.
     if (!userCredential.cycle_end_date) {
       setError('This credential is missing a cycle end date and cannot be saved yet.')
       return
@@ -55,7 +55,6 @@ export default function EditCredentialPage() {
 
     await updateUserCredential({
       id,
-      credential_id: userCredential.credential_id,
       cycle_end_date: userCredential.cycle_end_date,
       ...values,
     })

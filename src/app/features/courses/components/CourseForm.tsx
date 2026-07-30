@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { getCategories } from '../../../shared/api/courseCategoriesAPI'
+import type { CourseCategory } from '../../../shared/api/courseCategoriesAPI'
 import { supabase } from '../../../supabase/supabase'
 import SelectAutocomplete from '../../../shared/components/form/select-autocomplete'
+import type { Provider } from '../../../shared/components/form/select-autocomplete'
 import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 
 import '../styles/course-form.css'
@@ -12,11 +14,6 @@ const ACCEPTED_TYPES = ['application/pdf']
 const MAX_FILE_MB    = 10
 
 // ── local types ──────────────────────────────────────────────
-type CourseCategory = {
-  id: string
-  name: string
-}
-
 type CreditRow = {
   id: string
   category_id: string
@@ -27,12 +24,6 @@ type ExistingCredit = {
   id: string
   category_id: string | null
   credits_earned: number | string
-}
-
-type Provider = {
-  id: string
-  name?: string
-  [key: string]: unknown
 }
 
 type ExistingCourse = {
@@ -609,7 +600,7 @@ export default function CourseForm() {
 
               {(existingOtherDocs.length > 0 || otherDocs.length > 0) && (
                 <div className="cert-file-list">
-                  {existingOtherDocs.map((_, i) => (
+                  {existingOtherDocs.map((path, i) => (
                     <div className="cert-file-row" key={`existing-doc-${i}`}>
                       <span className="cert-file-name">📄 Document {i + 1} on file</span>
                       <button

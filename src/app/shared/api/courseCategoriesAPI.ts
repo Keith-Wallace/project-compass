@@ -1,16 +1,21 @@
 import { supabase } from '../../supabase/supabase'
 
+export interface CourseCategory {
+  id: string
+  name: string
+}
+
 /**
  * Fetch all available course categories.
  */
-export async function getCategories() {
+export async function getCategories(): Promise<CourseCategory[]> {
   const { data, error } = await supabase
     .from('course_categories')
     .select('*')
     .order('name', { ascending: true })
 
   if (error) throw error
-  return data
+  return data as CourseCategory[]
 }
 
 /**
@@ -18,7 +23,7 @@ export async function getCategories() {
  * @param {string} courseId - Course UUID
  * @param {string} categoryId - Category UUID
  */
-export async function addCategoryToCourse(courseId, categoryId) {
+export async function addCategoryToCourse(courseId: string, categoryId: string) {
   const { data, error } = await supabase
     .from('course_category_credits')
     .insert([{ course_id: courseId, category_id: categoryId }])
@@ -34,7 +39,7 @@ export async function addCategoryToCourse(courseId, categoryId) {
  * @param {string} courseId - Course UUID
  * @param {string} categoryId - Category UUID
  */
-export async function removeCategoryFromCourse(courseId, categoryId) {
+export async function removeCategoryFromCourse(courseId: string, categoryId: string) {
   const { error } = await supabase
     .from('course_category_credits')
     .delete()
