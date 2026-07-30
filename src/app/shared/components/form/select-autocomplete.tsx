@@ -17,24 +17,38 @@
 */
 
 import { useState, useEffect, useRef } from "react";
+import type { ChangeEvent, KeyboardEvent } from "react";
 import { supabase } from '../../../supabase/supabase'
 
 import '../../styles/forms/select-autocomplete.css';
 
+export interface Provider {
+  id: string;
+  name: string;
+  address?: string | null;
+  website?: string | null;
+  registry_id?: string | null;
+  nasba_id?: string | null;
+}
 
-export default function SelectAutocomplete({ value, onChange }) {
+interface SelectAutocompleteProps {
+  value: Provider | null;
+  onChange: (provider: Provider | null) => void;
+}
+
+export default function SelectAutocomplete({ value, onChange }: SelectAutocompleteProps) {
   const [query, setQuery]                 = useState(value?.name ?? "");
-  const [results, setResults]             = useState([]);
+  const [results, setResults]             = useState<Provider[]>([]);
   const [open, setOpen]                   = useState(false);
   const [loading, setLoading]             = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const containerRef                      = useRef(null);
-  const optionRefs                        = useRef([]);
+  const containerRef                      = useRef<HTMLDivElement>(null);
+  const optionRefs                        = useRef<(HTMLLIElement | null)[]>([]);
 
   // Close dropdown on outside click
   useEffect(() => {
-    const handler = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
         setHighlightedIndex(-1);
       }
@@ -43,11 +57,11 @@ export default function SelectAutocomplete({ value, onChange }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Sync input if parent clears selection
-  useEffect(() => {
-    if (!value) setQuery("");
-    else setQuery(value.name);
-  }, [value]);
+ const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setQuery(value ? value.name : "");
+  }
 
   // Keep the highlighted option scrolled into view as it changes
   useEffect(() => {
@@ -55,7 +69,7 @@ export default function SelectAutocomplete({ value, onChange }) {
     optionRefs.current[highlightedIndex]?.scrollIntoView({ block: "nearest" });
   }, [highlightedIndex]);
 
-  const search = async (text) => {
+  const search = async (text: string) => {
     if (!text.trim()) {
       setResults([]);
       setOpen(false);
@@ -63,7 +77,7 @@ export default function SelectAutocomplete({ value, onChange }) {
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error }: { data: Provider[] | null; error: unknown } = await supabase
       .from("providers")
       .select("id, name, address, website, registry_id, nasba_id")
       .ilike("name", `%${text}%`)
@@ -76,14 +90,14 @@ export default function SelectAutocomplete({ value, onChange }) {
     setHighlightedIndex(-1);
   };
 
-  const handleInput = (e) => {
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     setQuery(text);
     if (value) onChange(null); // clear selection when user retypes
     search(text);
   };
 
-  const handleSelect = (provider) => {
+  const handleSelect = (provider: Provider) => {
     onChange(provider);
     setQuery(provider.name);
     setResults([]);
@@ -98,7 +112,7 @@ export default function SelectAutocomplete({ value, onChange }) {
     setHighlightedIndex(-1);
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (!open || loading || results.length === 0) return;
 
     switch (e.key) {
@@ -166,11 +180,11 @@ export default function SelectAutocomplete({ value, onChange }) {
             <li className="pac-option pac-option--meta">No providers found</li>
           )}
           {!loading &&
-            results.map((p, index) => (
+            results.map((p: Provider, index: number) => (
               <li
                 key={p.id}
                 id={`pac-option-${p.id}`}
-                ref={(el) => (optionRefs.current[index] = el)}
+                ref={(el) => { optionRefs.current[index] = el; }}
                 className={
                   "pac-option" +
                   (index === highlightedIndex ? " pac-option--active" : "")

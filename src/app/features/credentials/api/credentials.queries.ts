@@ -75,7 +75,7 @@ export interface AddCredentialInput {
   cycle_end_date: string
 }
 
-export interface UpdateCredentialInput extends AddCredentialInput {
+export interface UpdateCredentialInput extends Omit<AddCredentialInput, 'credential_id'> {
   id: string
 }
 
@@ -95,7 +95,11 @@ export async function fetchAllCredentials(): Promise<CredentialWithOrg[]> {
     .order('credential_name')
 
   if (error) throw error
-  return data as CredentialWithOrg[]
+  // TODO: generated Supabase types infer `governing_authorities` as an array (PostgREST
+  // embed default) even though it's a to-one FK relationship at runtime. Regenerate types
+  // or disambiguate the embed (e.g. governing_authorities!<fk_constraint_name>) to drop
+  // this unknown cast. See ticket: [CPE-TRACK] Resolve governing_authorities embed typing.
+  return data as unknown as CredentialWithOrg[]
 }
 
 export async function fetchCredentialById(
@@ -112,7 +116,10 @@ export async function fetchCredentialById(
     .single()
 
   if (error) throw error
-  return data as CredentialWithOrg
+  // TODO: same governing_authorities embed-typing issue as fetchAllCredentials above.
+  // See ticket: https://planner.cloud.microsoft/webui/v1/plan/sxQQKmQ3oEOk74KmM-1yD2UAACAJ/view/grid/task/tMVW19kENkG7scsDQWwC4mUACg2a?tid=705b3ba1-e317-4be2-ac55-72f5422a1f12
+  // Resolve governing_authorities embed typing.
+  return data as unknown as CredentialWithOrg
 }
 
 export async function fetchRequirementRule(
@@ -203,6 +210,7 @@ export async function updateUserCredential(input: UpdateCredentialInput): Promis
     .update({
       status_id: input.status_id,
       cycle_start_date: input.cycle_start_date,
+      cycle_end_date: input.cycle_end_date,
     })
     .eq('id', input.id)
 

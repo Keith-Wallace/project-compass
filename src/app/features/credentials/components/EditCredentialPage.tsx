@@ -25,11 +25,11 @@ export default function EditCredentialPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!id) {
-      setError('Invalid credential ID.')
-      setLoading(false)
-      return
-    }
+    if (!id) return
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- TODO: revisit with request-cancellation (AbortController) cleanup; deferred for now
+    setLoading(true)
+    setError(null)
 
     fetchUserCredentialById(id)
       .then(setUserCredential)
@@ -37,9 +37,27 @@ export default function EditCredentialPage() {
       .finally(() => setLoading(false))
   }, [id])
 
+  // Derived synchronously during render — no network call needed, so no
+  // effect is required for this branch (see note below).
+  const idError = !id ? 'Invalid credential ID.' : null
+
   async function handleSubmit(values: CredentialFormValues) {
-    if (!id) return
-    await updateUserCredential({ id, ...values })
+    if (!id || !userCredential) return
+
+    // CredentialForm currently only edits status_id and cycle_start_date.
+    // cycle_end_date isn't exposed in the form yet, so carry the existing
+    // value through for now.
+    // TODO: revisit once CredentialForm supports editing cycle_end_date directly.
+    if (!userCredential.cycle_end_date) {
+      setError('This credential is missing a cycle end date and cannot be saved yet.')
+      return
+    }
+
+    await updateUserCredential({
+      id,
+      cycle_end_date: userCredential.cycle_end_date,
+      ...values,
+    })
     navigate('/credentials')
   }
 
@@ -49,19 +67,30 @@ export default function EditCredentialPage() {
     navigate('/credentials')
   }
 
+  if (idError) {
+    return (
+      <div className="state-container">
+        <p className="error-text">{idError}</p>
+        <button className="btn-back" onClick={() => navigate('/credentials')}>
+          ← Back to Credentials
+        </button>
+      </div>
+    )
+  }
+
   if (loading) {
     return (
-      <div className={styles.stateContainer}>
-        <div className={styles.spinner} />
+      <div className="state-container">
+        <div className="spinner" />
       </div>
     )
   }
 
   if (error || !userCredential) {
     return (
-      <div className={styles.stateContainer}>
-        <p className={styles.errorText}>{error ?? 'Credential not found.'}</p>
-        <button className={styles.btnBack} onClick={() => navigate('/credentials')}>
+      <div className="state-container">
+        <p className="error-text">{error ?? 'Credential not found.'}</p>
+        <button className="btn-back" onClick={() => navigate('/credentials')}>
           ← Back to Credentials
         </button>
       </div>
@@ -69,16 +98,16 @@ export default function EditCredentialPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <button className={styles.backLink} onClick={() => navigate('/credentials')}>
+    <div className="credential-edit-page">
+      <button className="back-link" onClick={() => navigate('/credentials')}>
         ← Credentials
       </button>
-      <h1 className={styles.title}>Edit Credential</h1>
-      <p className={styles.subtitle}>
+      <h1 className="page-title">Edit Credential</h1>
+      <p className="page-subtitle">
         Update the details for your {userCredential.credentials.abbreviation}.
       </p>
 
-      <div className={styles.formCard}>
+      <div className="form-card">
         <CredentialForm
           credential={userCredential.credentials}
           initialValues={{
