@@ -139,3 +139,42 @@
   color: #C8D0E0;
   letter-spacing: 0.06em;
 }
+
+.field-checkbox label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.field-checkbox input[type='checkbox'] {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.legal-card {
+  max-width: 640px;
+  text-align: left;
+}
+
+.legal-body {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.legal-body h2 {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0D1B4B;
+}
+
+.legal-body ul {
+  margin-top: 0.5rem;
+  padding-left: 1.25rem;
+  list-style: disc;
+}

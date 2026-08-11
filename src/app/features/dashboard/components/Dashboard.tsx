@@ -5,11 +5,18 @@ import { supabase } from '../../../supabase/supabase'
 import CourseList from '../../courses/components/CourseList'
 import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 
+import { useAuth } from '../../auth/hooks/useAuth';
+
 import '../styles/dashboard.css'
+
+function DebugAuthState() {
+  const { session, loading } = useAuth();
+  console.log('auth state:', { loading, session });
+  return null;
+}
 
 
 export default function Dashboard() {
-  console.log('Dashboard.tsx > Dashboard()')
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -152,6 +159,7 @@ export default function Dashboard() {
               onDelete={handleDelete}
             />
           )}
+          <DebugAuthState />
         </main>
       </div>
     </>

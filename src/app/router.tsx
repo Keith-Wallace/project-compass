@@ -3,13 +3,19 @@ import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase/supabase'
 import Login from './features/auth/components/Login'
+import Signup from './features/auth/components/Signup'
 import Dashboard from './features/dashboard/components/Dashboard'
 import CourseForm from './features/courses/components/CourseForm'
 import CourseListPage from './features/courses/components/CourseListPage'
+import VerifyEmail from './features/auth/components/VerifyEmail'
+import ConfirmedEmail from './features/auth/components/ConfirmedEmail'
+import Terms from './features/auth/components/Terms'
+import Privacy from './features/auth/components/Privacy'
 
 import CredentialsPage   from './features/credentials/components/CredentialsPage'
 import AddCredentialPage from './features/credentials/components/AddCredentialPage'
 import EditCredentialPage from './features/credentials/components/EditCredentialPage'
+
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -31,6 +37,12 @@ export default function AppRouter() {
     <BrowserRouter basename="/project-compass">
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/auth/confirmed" element={<ConfirmedEmail />} />
+        <Route path="/legal/terms" element={<Terms />} />
+        <Route path="/legal/privacy" element={<Privacy />} />
+        
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
         <Route path="/courses" element={<ProtectedRoute><CourseListPage /></ProtectedRoute>} />
