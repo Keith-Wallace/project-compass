@@ -93,6 +93,16 @@ export default function Login() {
               {submitting ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
+          <p className="login-signup-link">
+            Don&apos;t have an account?{' '}
+            <button
+              type="button"
+              className="btn-link"
+              onClick={() => navigate('/signup')}
+            >
+              Sign up now
+            </button>
+          </p>
         </div>
       </main>
 
