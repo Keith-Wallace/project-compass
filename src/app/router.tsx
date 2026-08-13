@@ -9,6 +9,7 @@ import CourseForm from './features/courses/components/CourseForm'
 import CourseListPage from './features/courses/components/CourseListPage'
 import VerifyEmail from './features/auth/components/VerifyEmail'
 import ConfirmedEmail from './features/auth/components/ConfirmedEmail'
+import OnboardingChoice from './features/auth/components/OnboardingChoice'
 import Terms from './features/auth/components/Terms'
 import Privacy from './features/auth/components/Privacy'
 
@@ -40,6 +41,7 @@ export default function AppRouter() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/auth/confirmed" element={<ConfirmedEmail />} />
+        <Route path="/onboarding" element={<ProtectedRoute><OnboardingChoice /></ProtectedRoute>} />
         <Route path="/legal/terms" element={<Terms />} />
         <Route path="/legal/privacy" element={<Privacy />} />
         
