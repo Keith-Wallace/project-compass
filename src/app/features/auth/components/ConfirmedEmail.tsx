@@ -66,8 +66,8 @@ export default function ConfirmedEmail() {
             <>
               <h1 className="login-title">Email confirmed</h1>
               <p className="login-subtitle">Your account is ready to go.</p>
-              <button className="btn-login" onClick={() => navigate('/')}>
-                Continue to dashboard
+              <button className="btn-login" onClick={() => navigate('/onboarding')}>
+                Continue
               </button>
             </>
           )}
