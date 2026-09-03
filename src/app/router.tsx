@@ -17,6 +17,9 @@ import CredentialsPage   from './features/credentials/components/CredentialsPage
 import AddCredentialPage from './features/credentials/components/AddCredentialPage'
 import EditCredentialPage from './features/credentials/components/EditCredentialPage'
 
+import Settings from './features/settings/components/Settings'
+import UserInfo from './features/settings/components/UserInfo'
+
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -54,6 +57,9 @@ export default function AppRouter() {
         <Route path="/credentials"          element={<CredentialsPage />} />
         <Route path="/credentials/new"      element={<AddCredentialPage />} />
         <Route path="/credentials/:id/edit" element={<EditCredentialPage />} />
+
+        <Route path="/settings"            element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/settings/user-info"  element={<ProtectedRoute><UserInfo /></ProtectedRoute>} />
 
         <Route path="*" element={<ProtectedRoute><Navigate to="/" replace /></ProtectedRoute>} />
       </Routes>

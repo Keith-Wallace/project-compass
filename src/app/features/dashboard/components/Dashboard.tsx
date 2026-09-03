@@ -82,6 +82,12 @@ export default function Dashboard() {
           </div>
           <div className="header-actions">
             <button
+              onClick={() => navigate('/settings/')}
+              className="btn-primary"
+            >
+              Settings
+            </button>
+            <button
               onClick={() => navigate('/credentials/')}
               className="btn-primary"
             >
