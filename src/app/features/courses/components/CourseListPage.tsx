@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom'
 import { getCourses, deleteCourse } from '../api/coursesAPI'
 import type { Course } from '../api/coursesAPI'
 import CourseList from './CourseList'
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 import '../styles/course-list-page.css'
 
 
@@ -51,14 +50,14 @@ export default function CourseListPage() {
   return (
     <>
       <header className="form-header">
-        <div className="form-header-left">
+        {/* <div className="form-header-left">
           <button className="back-btn" onClick={() => navigate('/')}>
             ← Back
           </button>
           <div className="form-logo">
             <img src={RollingThreeLogo} alt="Rolling Three" height="100" />
           </div>
-        </div>
+        </div> */}
         <div className="header-actions">
           <button
             className="btn-primary"

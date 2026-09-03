@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom'
 import { fetchUserCredentials, deleteUserCredential } from '../api/credentials.queries'
 import type { UserCredentialWithDetails } from '../api/credentials.queries'
 import CredentialList from './CredentialsList'
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 import '../styles/credentials-page.css'
 
 
@@ -55,14 +54,14 @@ export default function CredentialsPage() {
   return (
     <>
       <header className="form-header">
-        <div className="form-header-left">
+        {/* <div className="form-header-left">
           <button className="back-btn" onClick={() => navigate('/')}>
             ← Back
           </button>
           <div className="form-logo">
             <img src={RollingThreeLogo} alt="Rolling Three" height="100" />
           </div>
-        </div>
+        </div> */}
         <div className="header-actions">
           <button
             className="btn-primary"
