@@ -1,9 +1,8 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabase/supabase';
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 
-import '../styles/login.css'
+import '../styles/signup.css'
 
 // Bumped whenever the placeholder ToS/Privacy copy is replaced with
 // reviewed legal language.
@@ -108,12 +107,6 @@ export default function Signup() {
 
   return (
     <div className="login-root">
-      <header className="login-header">
-        <div className="login-logo">
-          <img src={RollingThreeLogo} alt="Rolling Three" height={125} />
-        </div>
-      </header>
-
       <main className="login-body">
         <div className="login-card">
           <div className="login-eyebrow">Get started</div>
@@ -212,7 +205,7 @@ export default function Signup() {
               <label>
                 <input type="checkbox" checked={tosAccepted} onChange={handleTosChange} required />
                 {' '}I agree to the{' '}
-                <a href="/legal/terms" target="_blank" rel="noreferrer">Terms of Service</a>
+                <a href="legal/terms" target="_blank" rel="noreferrer">Terms of Service</a>
               </label>
             </div>
 
@@ -220,7 +213,7 @@ export default function Signup() {
               <label>
                 <input type="checkbox" checked={privacyAccepted} onChange={handlePrivacyChange} required />
                 {' '}I agree to the{' '}
-                <a href="/legal/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>
+                <a href="legal/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>
               </label>
             </div>
 
@@ -230,10 +223,6 @@ export default function Signup() {
           </form>
         </div>
       </main>
-
-      <footer className="login-footer">
-        Rolling Three — continuing education record keeper
-      </footer>
     </div>
   );
 }

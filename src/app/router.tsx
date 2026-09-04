@@ -17,8 +17,9 @@ import CredentialsPage   from './features/credentials/components/CredentialsPage
 import AddCredentialPage from './features/credentials/components/AddCredentialPage'
 import EditCredentialPage from './features/credentials/components/EditCredentialPage'
 
-// import Settings from './features/settings/components/Settings'
-// import UserInfo from './features/settings/components/UserInfo'
+import Settings from './features/settings/components/Settings'
+import UserInfo from './features/settings/components/UserInfo'
+
 
 import AppLayout from './shared/page-layout/AppLayout';
 import LayoutPreview from './features/layout/components/LayoutPreview'
@@ -46,12 +47,17 @@ export default function AppRouter() {
   return (
     <BrowserRouter basename="/project-compass">
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/auth/confirmed" element={<ConfirmedEmail />} />
-        <Route path="/legal/terms" element={<Terms />} />
-        <Route path="/legal/privacy" element={<Privacy />} />
+        {/* Public routes share the app shell too (logo header, footer),
+            just without side nav or the topbar-actions (avatar/notifications)
+            since there's no authenticated user yet. */}
+        <Route element={<AppLayout variant="public" />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/auth/confirmed" element={<ConfirmedEmail />} />
+          <Route path="/legal/terms" element={<Terms />} />
+          <Route path="/legal/privacy" element={<Privacy />} />
+        </Route>
 
         <Route element={<ProtectedRoute />}>
 
@@ -76,12 +82,11 @@ export default function AppRouter() {
             <Route path="/credentials/new"      element={<AddCredentialPage />} />
             <Route path="/credentials/:id/edit" element={<EditCredentialPage />} />
 
-            {/* <Route path="/settings"            element={<Settings />} />
-            <Route path="/settings/user-info"  element={<UserInfo />} /> */}
+            <Route path="/settings"            element={<Settings />} />
+            <Route path="/settings/user-info"  element={<UserInfo />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
-
         </Route>
       </Routes>
     </BrowserRouter>

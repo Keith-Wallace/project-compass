@@ -1,3 +1,8 @@
-.sidenav__item--last {
-    margin-top: auto;
+button.sidenav__item--last {
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%; 
+    /* margin-top: auto; */
 }

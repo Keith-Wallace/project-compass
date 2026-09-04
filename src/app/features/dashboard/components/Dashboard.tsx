@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCourses, deleteCourse, type Course } from '../../courses/api/coursesAPI'
-import { supabase } from '../../../supabase/supabase'
 import CourseList from '../../courses/components/CourseList'
 
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -20,11 +19,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate()
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
 
   const fetchCourses = async () => {
     try {

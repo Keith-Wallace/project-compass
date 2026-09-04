@@ -17,12 +17,18 @@ import './styles/app-layout.css';
 // each is touched rather than in one pass.
 // ------------------------------------------------------------
 
-export default function AppLayout() {
+type AppLayoutProps = {
+  variant?: 'app' | 'public';
+};
+
+export default function AppLayout({ variant = 'app' }: AppLayoutProps) {
+  const isPublic = variant === 'public';
+
   return (
-    <div className="app-shell">
-      <Header />
+    <div className={`app-shell${isPublic ? ' app-shell--public' : ''}`}>
+      <Header isPublic={isPublic} />
       <div className="body">
-				<Navigation />
+				{!isPublic && <Navigation />}
 				<main className="content">
 					<Outlet />
 				</main>
