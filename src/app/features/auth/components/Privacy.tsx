@@ -1,17 +1,10 @@
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
-
-import '../styles/login.css'
+import '../styles/terms-privacy.css';
 
 const LAST_UPDATED = 'August 2026';
 
 export default function Privacy() {
   return (
     <div className="login-root">
-      <header className="login-header">
-        <div className="login-logo">
-          <img src={RollingThreeLogo} alt="Rolling Three" height={125} />
-        </div>
-      </header>
 
       <main className="login-body">
         <div className="login-card legal-card">
@@ -44,10 +37,6 @@ export default function Privacy() {
           </div>
         </div>
       </main>
-
-      <footer className="login-footer">
-        Rolling Three — continuing education record keeper
-      </footer>
     </div>
   );
 }

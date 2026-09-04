@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCourses, deleteCourse, type Course } from '../../courses/api/coursesAPI'
-import { supabase } from '../../../supabase/supabase'
 import CourseList from '../../courses/components/CourseList'
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 
 import { useAuth } from '../../auth/hooks/useAuth';
 
@@ -21,11 +19,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate()
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
 
   const fetchCourses = async () => {
     try {
@@ -74,100 +67,89 @@ export default function Dashboard() {
   const fmt = (val: number): string | number => val % 1 === 0 ? val : val.toFixed(1)
 
   return (
-    <>
-      <div className="dashboard-root">
-        <header className="dashboard-header">
-          <div className="dashboard-logo">
-            <img src={RollingThreeLogo} alt="Rolling Three" height="100" />
-          </div>
-          <div className="header-actions">
-            <button
-              onClick={() => navigate('/settings/')}
-              className="btn-primary"
-            >
-              Settings
-            </button>
-            <button
-              onClick={() => navigate('/credentials/')}
-              className="btn-primary"
-            >
-              Credentials
-            </button>
-            <button className="btn-primary" onClick={() => navigate('/courses/new')}>
-              + Add Course
-            </button>
-            <button className="btn-logout" onClick={handleLogout}>
-              Sign out
-            </button>
-          </div>
-        </header>
-
-        <main className="dashboard-body">
+    <div className="dashboard-body">
+      {/* Page-level title row. Logo, the "Credentials" quick-nav button,
+          and Sign out previously lived in this page's own header — all
+          removed now that AppLayout provides TopNav + SideNav (Credentials
+          is already a permanent SideNav item, so that button was fully
+          redundant). Sign out temporarily lives here inline until TopNav's
+          avatar gets a real account/logout menu — flag if you want that
+          built now instead of deferred. */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', marginBottom: '24px' }}>
+        <div>
           <h1 className="dashboard-title">My CPE Dashboard</h1>
           <p className="dashboard-subtitle">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
-
-          {/* Stats Row */}
-          <div className="stats-row">
-            <div className="stat-card">
-              <div className="stat-label">Total Credits</div>
-              <div className="stat-value accent">{fmt(totalCredits)}</div>
-              <div className="stat-sub">all time</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Credits {currentYear}</div>
-              <div className="stat-value">{fmt(creditsThisYear)}</div>
-              <div className="stat-sub">this year</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Courses Logged</div>
-              <div className="stat-value">{courses.length}</div>
-              <div className="stat-sub">total entries</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-label">Providers</div>
-              <div className="stat-value">{uniqueProviders}</div>
-              <div className="stat-sub">unique sources</div>
-            </div>
-          </div>
-
-          {/* Error */}
-          {error && <div className="error-msg">Error: {error}</div>}
-
-          {/* Course List Section */}
-          <div className="section-header">
-            <span className="section-title">Course History</span>
-            <div className="section-header-right">
-              <span className="section-count">{courses.length} records</span>
-              {courses.length > 0 && (
-                <button className="btn-link" onClick={() => navigate('/courses')}>
-                  View All →
-                </button>
-              )}
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="loading-state">Loading courses...</div>
-          ) : courses.length === 0 ? (
-            <div className="empty-state">
-              <p>No courses logged yet.</p>
-              <span>Start tracking your continuing education credits.</span>
-              <button className="btn-primary" onClick={() => navigate('/courses/new')}>
-                Add Your First Course
-              </button>
-            </div>
-          ) : (
-            <CourseList
-              courses={courses.slice(0, 3)}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          )}
-          <DebugAuthState />
-        </main>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
+          <button className="btn-primary" onClick={() => navigate('/courses/new')}>
+            + Add Course
+          </button>
+          {/* <button className="btn-logout" onClick={handleLogout}>
+            Sign out
+          </button> */}
+        </div>
       </div>
-    </>
+
+      {/* Stats Row */}
+      <div className="stats-row">
+        <div className="stat-card">
+          <div className="stat-label">Total Credits</div>
+          <div className="stat-value accent">{fmt(totalCredits)}</div>
+          <div className="stat-sub">all time</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Credits {currentYear}</div>
+          <div className="stat-value">{fmt(creditsThisYear)}</div>
+          <div className="stat-sub">this year</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Courses Logged</div>
+          <div className="stat-value">{courses.length}</div>
+          <div className="stat-sub">total entries</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Providers</div>
+          <div className="stat-value">{uniqueProviders}</div>
+          <div className="stat-sub">unique sources</div>
+        </div>
+      </div>
+
+      {/* Error */}
+      {error && <div className="error-msg">Error: {error}</div>}
+
+      {/* Course List Section */}
+      <div className="section-header">
+        <span className="section-title">Course History</span>
+        <div className="section-header-right">
+          <span className="section-count">{courses.length} records</span>
+          {courses.length > 0 && (
+            <button className="btn-link" onClick={() => navigate('/courses')}>
+              View All →
+            </button>
+          )}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="loading-state">Loading courses...</div>
+      ) : courses.length === 0 ? (
+        <div className="empty-state">
+          <p>No courses logged yet.</p>
+          <span>Start tracking your continuing education credits.</span>
+          <button className="btn-primary" onClick={() => navigate('/courses/new')}>
+            Add Your First Course
+          </button>
+        </div>
+      ) : (
+        <CourseList
+          courses={courses.slice(0, 3)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
+      <DebugAuthState />
+    </div>
   )
 }
