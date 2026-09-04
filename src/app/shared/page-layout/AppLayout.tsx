@@ -3,7 +3,6 @@ import Header from '../page-layout/header/components/Header';
 import Footer from '../page-layout/footer/components/Footer';
 import Navigation from '../page-layout/side-navigation/components/Navigation';
 
-import '../../features/layout/css/layout-preview.css'
 import './styles/app-layout.css';
 
 
