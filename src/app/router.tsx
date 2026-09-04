@@ -20,9 +20,7 @@ import EditCredentialPage from './features/credentials/components/EditCredential
 import Settings from './features/settings/components/Settings'
 import UserInfo from './features/settings/components/UserInfo'
 
-
 import AppLayout from './shared/page-layout/AppLayout';
-import LayoutPreview from './features/layout/components/LayoutPreview'
 
 
 // Auth guard only — no layout knowledge. Renders <Outlet /> so it can
@@ -65,7 +63,6 @@ export default function AppRouter() {
               to show — intentionally kept outside AppLayout, same as
               the standalone layout-preview route below. */}
           <Route path="/onboarding" element={<OnboardingChoice />} />
-          <Route path="/layout-preview" element={<LayoutPreview />} />
 
           {/* Everything below shares the app shell (top nav, side nav,
               footer) via AppLayout + <Outlet />. Credentials routes are
