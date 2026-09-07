@@ -1,8 +1,112 @@
-button.sidenav__item--last {
-    border: none;
-    background: none;
+.sidenav {
+  width: var(--sidenav-width);
+  min-width: var(--sidenav-min-width);
+  flex-shrink: 0;
+  background: var(--color-surface-sunken);
+  border-right: 1px solid var(--color-border);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidenav__item,
+button.sidenav__item,
+.sidenav__subitem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  height: 2.5rem;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Reset browser default button chrome so button.sidenav__item
+   is visually identical to the anchor-based items */
+button.sidenav__item {
+  width: 100%;
+  border: none;
+  background: none;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  font-weight: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.sidenav__item:focus-visible {
+  outline: 2px solid var(--color-active-text);
+  outline-offset: 2px;
+}
+
+button.sidenav__item {
+  justify-content: space-between;
+}
+
+.sidenav__item-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidenav__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  transform: rotate(180deg);
+  transition: transform 0.15s ease;
+}
+
+.sidenav__chevron--expanded {
+  transform: rotate(0deg);
+}
+
+.sidenav__item:hover,
+.sidenav__subitem:hover {
+  background: var(--color-surface);
+}
+
+.sidenav__item--active,
+.sidenav__subitem--active {
+  background: var(--color-active-bg);
+  color: var(--color-active-text);
+  font-weight: 600;
+}
+
+.sidenav__item--last {
     cursor: pointer;
-    text-align: left;
-    width: 100%; 
-    /* margin-top: auto; */
+    margin-top: 4rem;   
+}
+
+/* Settings sub-navigation */
+
+.sidenav__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidenav__subnav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: 20px;
+  padding-left: 12px;
+  border-left: 1px solid var(--color-border);
+}
+
+.sidenav__subitem {
+  font-size: 15px;
 }
