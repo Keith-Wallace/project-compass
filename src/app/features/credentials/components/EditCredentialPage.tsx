@@ -98,8 +98,38 @@ export default function EditCredentialPage() {
   }
 
   return (
-    <div className="credential-edit-page">
-      <button className="back-link" onClick={() => navigate('/credentials')}>
+    <div className="main-content-area">
+      <div className="main-content-header">
+        <div>
+          <h1>Edit Credential</h1>
+          <p className="main-content-header-subtitle">
+            Update the details for your {userCredential.credentials.abbreviation}.
+          </p>
+        </div>
+        <div className="header-actions">
+          <button
+            className="btn-primary"
+            onClick={() => navigate('/credentials')}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <div className="form-card">
+        <CredentialForm
+          credential={userCredential.credentials}
+          initialValues={{
+            status_id: userCredential.status_id as CredentialFormValues['status_id'],
+            cycle_start_date: userCredential.cycle_start_date,
+          }}
+          onSubmit={handleSubmit}
+          onCancel={() => navigate('/credentials')}
+          onDelete={handleDelete}
+          submitLabel="Save Changes"
+        />
+      </div>
+      {/* <button className="back-link" onClick={() => navigate('/credentials')}>
         ← Credentials
       </button>
       <h1 className="page-title">Edit Credential</h1>
@@ -119,7 +149,7 @@ export default function EditCredentialPage() {
           onDelete={handleDelete}
           submitLabel="Save Changes"
         />
-      </div>
+      </div> */}
     </div>
   )
 }
