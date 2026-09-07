@@ -1,12 +1,9 @@
-// src/features/credentials/CredentialsPage.tsx
-// /credentials — shows all available credentials grouped by governing authority.
-// Claimed credentials show a "Manage" badge; unclaimed show an "Add" button.
-
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchUserCredentials, deleteUserCredential } from '../api/credentials.queries'
 import type { UserCredentialWithDetails } from '../api/credentials.queries'
 import CredentialList from './CredentialsList'
+
 import '../styles/credentials-page.css'
 
 
@@ -52,47 +49,32 @@ export default function CredentialsPage() {
   }
 
   return (
-    <>
-      <header className="form-header">
-        {/* <div className="form-header-left">
-          <button className="back-btn" onClick={() => navigate('/')}>
-            ← Back
-          </button>
-          <div className="form-logo">
-            <img src={RollingThreeLogo} alt="Rolling Three" height="100" />
-          </div>
-        </div> */}
+    <div className="main-content-area">
+      <div className="main-content-header">
+        <div>
+          <h1>My Credentials</h1>
+          <p className="main-content-header-subtitle">
+            Manage your professional credentials.
+          </p>
+        </div>
         <div className="header-actions">
           <button
             className="btn-primary"
             onClick={() => navigate('/credentials/new')}
           >
-            + Add Credential
+            Add Credential
           </button>
         </div>
-      </header>
+      </div>
 
-      <div className="credentials-page">
-        {/* Page header */}
-        <div className="credentials-page-header">
-          <div>
-            <h1 className="credentials-page-title">My Credentials</h1>
-            <p className="credentials-page-subtitle">
-              Manage your professional credentials.
-            </p>
-          </div>
-        </div>
+      {error && <div className="error-msg">Error: {error}</div>}
 
-        {/* Error */}
-        {error && <div className="error-msg">Error: {error}</div>}
-
-        {/* Section header — mirrors Dashboard "Course History" section */}
+      <div className="main-content-body">
         <div className="section-header">
           <span className="section-title">Credential History</span>
           <span className="section-count">{credentials.length} records</span>
         </div>
 
-        {/* States */}
         {loading ? (
           <div className="loading-state">Loading credentials...</div>
         ) : credentials.length === 0 ? (
@@ -111,17 +93,10 @@ export default function CredentialsPage() {
             credentials={credentials}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onSubmit={submitting}
           />
         )}
-        <button
-          type="button"
-          className="btn-cancel"
-          onClick={() => navigate('/')}
-          disabled={submitting}
-        >
-          Cancel
-        </button>
       </div>
-    </>
+    </div>
   )
 }

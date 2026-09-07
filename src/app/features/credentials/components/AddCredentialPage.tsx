@@ -1,10 +1,3 @@
-// src/app/features/credentials/components/AddCredentialPage.tsx
-// /credentials/new
-//
-// Step 1: User fills three fields (credential, issued date, status) → clicks Review
-// Step 2: CPE requirements panel appears alongside the form
-// Step 3: User clicks Save Credential → writes to DB → /credentials
-
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -20,7 +13,6 @@ import type {
   CredentialStatusId
 } from '../api/credentials.queries'
 import CredentialRequirementsPanel from './CredentialRequirementsPanel'
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 
 // NOTE: reusing the same stylesheet as the "Log a Course" page (course-form.css)
 // so both forms share the .form-root / .form-header / .form-body / .field-group
@@ -262,21 +254,25 @@ export default function AddCredentialPage() {
   }
 
   return (
-    <div className="form-root">
-
-      <header className="form-header">
-        <div className="form-header-left">
-          <button className="back-btn" onClick={() => navigate('/credentials')}>
-            ← Back
-          </button>
-          <div className="form-logo">
-            <img src={RollingThreeLogo} alt="Rolling Three" height="100" />
-          </div>
+    <div className="main-content-area">
+      <div className="main-content-header">
+        <div>
+          <h1>Add New Credential</h1>
+          <p className="main-content-header-subtitle">
+            Manage your professional credentials.
+          </p>
         </div>
-      </header>
+        <div className="header-actions">
+          <button
+            className="btn-primary"
+            onClick={() => navigate('/credentials/new')}
+          >
+            Add Credential
+          </button>
+        </div>
+      </div>
 
       <main className="form-body">
-        <h1 className="form-title">Add New Credential</h1>
 
         {fieldErrors.form && (
           <div className="error-banner">{fieldErrors.form}</div>
@@ -449,9 +445,6 @@ export default function AddCredentialPage() {
 
         </form>
 
-        {/* ------------------------------------------------------------------ */}
-        {/* Requirements panel                                                  */}
-        {/* ------------------------------------------------------------------ */}
         {reviewed && selectedCredential && (
           <>
             <hr className="form-divider" />

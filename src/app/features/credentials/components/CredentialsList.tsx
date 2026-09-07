@@ -8,9 +8,10 @@ interface Props {
   credentials: UserCredentialWithDetails[]
   onEdit: (credential: UserCredentialWithDetails) => void
   onDelete: (id: string) => Promise<void>
+  onSubmit: boolean
 }
 
-export default function CredentialList({ credentials, onEdit, onDelete }: Props) {
+export default function CredentialList({ credentials, onEdit, onDelete, onSubmit }: Props) {
   console.log('credentials: ', credentials)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -130,7 +131,7 @@ export default function CredentialList({ credentials, onEdit, onDelete }: Props)
             {/* Actions */}
             <div className="credential-actions">
               <button className="btn-edit" onClick={() => onEdit(uc)}>Edit</button>
-              <button className="btn-delete" onClick={() => handleDeleteClick(uc.id)}>✕</button>
+              <button className="btn-delete" onClick={() => handleDeleteClick(uc.id)} disabled={onSubmit}>✕</button>
             </div>
           </div>
         ))}
