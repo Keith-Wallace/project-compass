@@ -17,7 +17,6 @@ import CredentialsPage   from './features/credentials/components/CredentialsPage
 import AddCredentialPage from './features/credentials/components/AddCredentialPage'
 import EditCredentialPage from './features/credentials/components/EditCredentialPage'
 
-import Settings from './features/settings/components/Settings'
 import UserInfo from './features/settings/components/UserInfo'
 
 import AppLayout from './shared/page-layout/AppLayout';
@@ -79,7 +78,6 @@ export default function AppRouter() {
             <Route path="/credentials/new"      element={<AddCredentialPage />} />
             <Route path="/credentials/:id/edit" element={<EditCredentialPage />} />
 
-            <Route path="/settings"            element={<Settings />} />
             <Route path="/settings/user-info"  element={<UserInfo />} />
           </Route>
 
