@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/hooks/useAuth';
 import {
   getUserInfo,
@@ -60,7 +59,6 @@ const EMPTY_FORM: UserInfoRow = {
 };
 
 export default function UserInfo() {
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   const [form, setForm] = useState<UserInfoRow>(EMPTY_FORM);
