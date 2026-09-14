@@ -1,5 +1,4 @@
 import { useLocation, Navigate } from 'react-router-dom';
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
 
 import '../styles/login.css'
 
@@ -19,11 +18,6 @@ export default function VerifyEmail() {
 
   return (
     <div className="login-root">
-      <header className="login-header">
-        <div className="login-logo">
-          <img src={RollingThreeLogo} alt="Rolling Three" height={125} />
-        </div>
-      </header>
 
       <main className="login-body">
         <div className="login-card">
@@ -35,10 +29,6 @@ export default function VerifyEmail() {
           </p>
         </div>
       </main>
-
-      <footer className="login-footer">
-        Rolling Three — continuing education record keeper
-      </footer>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../../../shared/components/buttons/Buttons';
 
 import '../styles/login.css'
 
@@ -18,15 +19,15 @@ export default function OnboardingChoice() {
           </p>
 
           <div className="onboarding-actions">
-            <button className="btn-login" onClick={() => navigate('/credentials/new')}>
+            <Button onClick={() => navigate('/credentials/new')} variant="primary">
               Add a credential
-            </button>
-            <button className="btn-login btn-secondary" onClick={() => navigate('/courses/new')}>
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/courses/new')}>
               Add a course
-            </button>
-            <button className="btn-link" onClick={() => navigate('/')}>
+            </Button>
+            <Button onClick={() => navigate('/')} variant="primary">
               Skip to dashboard
-            </button>
+            </Button>
           </div>
         </div>
       </main>
