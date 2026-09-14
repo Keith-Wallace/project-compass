@@ -86,7 +86,7 @@
   justify-content: flex-end;
 }
 
-.btn-edit {
+/* .btn-edit {
   background: transparent;
   border: 1px solid #C8D0E0;
   color: #64748B;
@@ -118,7 +118,7 @@
   border-color: #EF4444;
   color: #EF4444;
   background: #FEF2F2;
-}
+} */
 
 /* Confirm delete overlay */
 .confirm-overlay {
@@ -140,7 +140,7 @@
   letter-spacing: 0.04em;
 }
 
-.btn-confirm-delete {
+/* .btn-confirm-delete {
   background: #EF4444;
   border: none;
   color: white;
@@ -170,7 +170,7 @@
 .btn-cancel:hover {
   border-color: #94A3B8;
   color: #475569;
-}
+} */
 
 /* List header */
 .course-list-header {

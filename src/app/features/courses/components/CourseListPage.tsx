@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom'
 import { getCourses, deleteCourse } from '../api/coursesAPI'
 import type { Course } from '../api/coursesAPI'
 import CourseList from './CourseList'
+import { Button } from '../../../shared/components/buttons/Buttons';
+
 import '../styles/course-list-page.css'
 
 
@@ -48,37 +50,25 @@ export default function CourseListPage() {
   }
 
   return (
-    <>
-      <header className="form-header">
-        {/* <div className="form-header-left">
-          <button className="back-btn" onClick={() => navigate('/')}>
-            ← Back
-          </button>
-          <div className="form-logo">
-            <img src={RollingThreeLogo} alt="Rolling Three" height="100" />
-          </div>
-        </div> */}
+    <div className="main-content-area">
+      <div className="main-content-header">
+        <div>
+          <h1>My Courses</h1>
+          <p className="main-content-header-subtitle">
+            Manage your professional credentials.
+          </p>
+        </div>
         <div className="header-actions">
-          <button
-            className="btn-primary"
+          <Button
+            variant="primary"
             onClick={() => navigate('/courses/new')}
           >
-            + Add Course
-          </button>
+            Add Course
+          </Button>
         </div>
-      </header>
+      </div>
 
-      <div className="courses-page">
-        {/* Page header */}
-        <div className="courses-page-header">
-          <div>
-            <h1 className="courses-page-title">My Courses</h1>
-            <p className="courses-page-subtitle">
-              All of your logged continuing education courses.
-            </p>
-          </div>
-        </div>
-
+      <div className="main-content-body">
         {/* Error */}
         {error && <div className="error-msg">Error: {error}</div>}
 
@@ -109,15 +99,7 @@ export default function CourseListPage() {
             onDelete={handleDelete}
           />
         )}
-        <button
-          type="button"
-          className="btn-cancel"
-          onClick={() => navigate('/')}
-          disabled={submitting}
-        >
-          Cancel
-        </button>
       </div>
-    </>
+    </div>
   )
 }

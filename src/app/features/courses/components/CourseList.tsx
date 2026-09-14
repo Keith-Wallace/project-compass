@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Course, CourseCategoryCredit } from '../api/coursesAPI'
+import { Button } from '../../../shared/components/buttons/Buttons';
 
 import '../styles/course-list.css'
 
@@ -97,8 +98,8 @@ export default function CourseList({ courses, onEdit, onDelete }: CourseListProp
             </div>
 
             <div className="course-actions">
-              <button className="btn-edit" onClick={() => onEdit(course)}>Edit</button>
-              <button className="btn-delete" onClick={() => handleDeleteClick(course.id)}>✕</button>
+              <Button variant="secondary" onClick={() => onEdit(course)}>Edit</Button>
+              <Button variant="cancel" onClick={() => handleDeleteClick(course.id)}>✕</Button>
             </div>
           </div>
         ))}
