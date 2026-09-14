@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import type { UserCredentialWithDetails } from '../api/credentials.queries'
+import { Button } from '../../../shared/components/buttons/Buttons';
+
 import '../styles/credentials-list.css'
 
 interface Props {
@@ -83,15 +85,18 @@ export default function CredentialList({ credentials, onEdit, onDelete, onSubmit
             {confirmId === uc.id && (
               <div className="confirm-overlay">
                 <span className="confirm-text">Remove this credential?</span>
-                <button
-                  className="btn-confirm-delete"
+                <Button
                   onClick={() => handleConfirmDelete(uc.id)}
+                  variant="primary"
                 >
                   Remove
-                </button>
-                <button className="btn-cancel" onClick={handleCancel}>
+                </Button>
+                <Button
+                  onClick={handleCancel}
+                  variant="cancel"
+                >
                   Cancel
-                </button>
+                </Button>
               </div>
             )}
 
@@ -106,9 +111,6 @@ export default function CredentialList({ credentials, onEdit, onDelete, onSubmit
               <span className="org-abbr-badge">
                 {uc.credentials.governing_authorities.abbreviation}
               </span>
-              {/* <span className="org-name">
-                {uc.credentials.governing_authorities.governing_authority_name}
-              </span> */}
             </div>
 
             {/* Issued date */}
@@ -130,8 +132,19 @@ export default function CredentialList({ credentials, onEdit, onDelete, onSubmit
 
             {/* Actions */}
             <div className="credential-actions">
-              <button className="btn-edit" onClick={() => onEdit(uc)}>Edit</button>
-              <button className="btn-delete" onClick={() => handleDeleteClick(uc.id)} disabled={onSubmit}>✕</button>
+              <Button
+                onClick={() => onEdit(uc)}
+                variant="secondary"
+              >
+                Edit
+              </Button>
+              <Button
+                disabled={onSubmit}
+                onClick={() => handleDeleteClick(uc.id)}
+                variant="cancel"
+              >
+                ✕
+              </Button>
             </div>
           </div>
         ))}
