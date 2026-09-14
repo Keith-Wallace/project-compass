@@ -7,6 +7,8 @@ import {
   type UserInfo as UserInfoRow,
   type UserInfoUpdate,
 } from '../api/userInfoAPI'
+import { Button } from '../../../shared/components/buttons/Buttons';
+
 
 import '../styles/user-info.css';
 
@@ -138,68 +140,34 @@ export default function UserInfo() {
         </div>
         <div className="header-actions">
           {!isEditing ? (
-            <button
-              type="button"
-              className="btn-submit"
+            <Button
               onClick={handleEditClick}
+              variant="primary"
             >
               Edit
-            </button>
+            </Button>
           ) : (
             <>
-              <button
-                type="button"
-                className="btn-cancel"
+              <Button
                 onClick={handleCancel}
                 disabled={isSaving}
+                variant="cancel"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
-                className="btn-submit"
+              </Button>
+              <Button
                 onClick={handleSave}
                 disabled={isSaving}
+                variant="primary"
               >
                 {isSaving ? 'Saving...' : 'Save'}
-              </button>
+              </Button>
             </>
           )}
         </div>
       </div>
 
       <div className="settings-form-wrap">
-
-        {/* <div className="settings-toolbar">
-          {!isEditing ? (
-            <button
-              type="button"
-              className="btn-submit"
-              onClick={handleEditClick}
-            >
-              Edit
-            </button>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="btn-cancel"
-                onClick={handleCancel}
-                disabled={isSaving}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn-submit"
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                {isSaving ? 'Saving...' : 'Save'}
-              </button>
-            </>
-          )}
-        </div> */}
 
         {error && <div className="error-banner">{error}</div>}
 
