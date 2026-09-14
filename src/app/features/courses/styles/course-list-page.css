@@ -3,7 +3,7 @@
    Shared classes (section-header, btn-primary, loading-state, empty-state,
    error-msg, btn-cancel, etc.) are defined elsewhere and intentionally not
    duplicated here. */
-
+/* 
 .courses-page {
   max-width: 960px;
   margin: 0 auto;
@@ -31,4 +31,4 @@
   font-size: 14px;
   color: #6B7280;
   margin: 0;
-}
+} */

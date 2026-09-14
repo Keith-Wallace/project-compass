@@ -5,6 +5,9 @@ import CourseList from '../../courses/components/CourseList'
 
 import { useAuth } from '../../auth/hooks/useAuth';
 
+import { Button } from '../../../shared/components/buttons/Buttons';
+
+
 import '../styles/dashboard.css'
 
 function DebugAuthState() {
@@ -83,12 +86,9 @@ export default function Dashboard() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
-          <button className="btn-primary" onClick={() => navigate('/courses/new')}>
-            + Add Course
-          </button>
-          {/* <button className="btn-logout" onClick={handleLogout}>
-            Sign out
-          </button> */}
+          <Button variant="primary" onClick={() => navigate('/courses/new')}>
+            Add Course
+          </Button>
         </div>
       </div>
 
@@ -125,9 +125,9 @@ export default function Dashboard() {
         <div className="section-header-right">
           <span className="section-count">{courses.length} records</span>
           {courses.length > 0 && (
-            <button className="btn-link" onClick={() => navigate('/courses')}>
+            <Button variant="secondary" onClick={() => navigate('/courses')}>
               View All →
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -138,9 +138,9 @@ export default function Dashboard() {
         <div className="empty-state">
           <p>No courses logged yet.</p>
           <span>Start tracking your continuing education credits.</span>
-          <button className="btn-primary" onClick={() => navigate('/courses/new')}>
+          <Button variant="primary" onClick={() => navigate('/courses/new')}>
             Add Your First Course
-          </button>
+          </Button>
         </div>
       ) : (
         <CourseList

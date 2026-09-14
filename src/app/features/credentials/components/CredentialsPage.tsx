@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { fetchUserCredentials, deleteUserCredential } from '../api/credentials.queries'
 import type { UserCredentialWithDetails } from '../api/credentials.queries'
 import CredentialList from './CredentialsList'
+import { Button } from '../../../shared/components/buttons/Buttons';
 
 import '../styles/credentials-page.css'
 
@@ -58,12 +59,12 @@ export default function CredentialsPage() {
           </p>
         </div>
         <div className="header-actions">
-          <button
-            className="btn-primary"
+          <Button
             onClick={() => navigate('/credentials/new')}
+            variant="primary"
           >
             Add Credential
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -81,12 +82,12 @@ export default function CredentialsPage() {
           <div className="empty-state">
             <p>No credentials added yet.</p>
             <span>Add a credential to start tracking your CPE requirements.</span>
-            <button
-              className="btn-primary"
+            <Button
               onClick={() => navigate('/credentials/new')}
+              variant="primary"
             >
               Add Your First Credential
-            </button>
+            </Button>
           </div>
         ) : (
           <CredentialList
