@@ -53,7 +53,7 @@ export default function Navigation() {
                   <item.icon className="icon" aria-hidden="true" />
                   {item.label}
                 </span>
-                {isExpanded ? <FaCaretDown /> : <FaCaretUp />}
+                {isExpanded ? <FaCaretUp /> : <FaCaretDown />}
               </button>
             ) : (
               <NavLink
