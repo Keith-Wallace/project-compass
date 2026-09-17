@@ -13,11 +13,8 @@ import type {
   CredentialStatusId
 } from '../api/credentials.queries'
 import CredentialRequirementsPanel from './CredentialRequirementsPanel'
+import { Button } from "../../../shared/components/buttons/Button";
 
-// NOTE: reusing the same stylesheet as the "Log a Course" page (course-form.css)
-// so both forms share the .form-root / .form-header / .form-body / .field-group
-// HTML structure. Adjust this relative path if the courses feature folder lives
-// somewhere else in your tree.
 import '../../courses/styles/course-form.css'
 
 // ---------------------------------------------------------------------------
@@ -245,9 +242,12 @@ export default function AddCredentialPage() {
       <div className="form-root">
         <div className="form-body">
           <p className="field-error-msg">{loadError}</p>
-          <button className="back-btn" onClick={() => navigate('/credentials')}>
-            ← Back to Credentials
-          </button>
+          <Button
+            onClick={() => navigate('/credentials')}
+            variant="secondary"
+          >
+            Back to Credentials
+          </Button>
         </div>
       </div>
     )
@@ -263,12 +263,11 @@ export default function AddCredentialPage() {
           </p>
         </div>
         <div className="header-actions">
-          <button
-            className="btn-primary"
+          <Button
             onClick={() => navigate('/credentials/new')}
           >
             Add Credential
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -426,21 +425,18 @@ export default function AddCredentialPage() {
 
           {/* Actions */}
           <div className="form-actions">
-            <button
-              type="button"
-              className="btn-cancel"
+            <Button
               onClick={() => navigate('/credentials')}
+              variant="cancel"
             >
               Cancel
-            </button>
-            <button
-              type="button"
-              className="btn-submit"
+            </Button>
+            <Button
               onClick={handleReview}
               disabled={loadingRule}
             >
               {loadingRule ? 'Loading…' : reviewed ? 'Update & Review' : 'Review Requirements'}
-            </button>
+            </Button>
           </div>
 
         </form>

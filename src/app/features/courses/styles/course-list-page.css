@@ -25,7 +25,7 @@
   margin: 0;
 }
 
-[class*="button-"] {
+.main-content-area [class*="button-"] {
   min-width: auto;
   margin-bottom: 0;
 }
