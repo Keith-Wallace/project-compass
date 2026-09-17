@@ -5,7 +5,7 @@ import type { CourseCategory } from '../../../shared/api/courseCategoriesAPI'
 import { supabase } from '../../../supabase/supabase'
 import SelectAutocomplete from '../../../shared/components/form/select-autocomplete'
 import type { Provider } from '../../../shared/components/form/select-autocomplete'
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
+import { Button } from "../../../shared/components/buttons/Button";
 
 import '../styles/course-form.css'
 
@@ -357,18 +357,22 @@ export default function CourseForm() {
   // ── render ────────────────────────────────────────────────
   return (
     <>
-      <div className="form-root">
-
-        <header className="form-header">
-          <div className="form-header-left">
-            <button className="back-btn" onClick={() => navigate('/')}>
-              ← Back
-            </button>
-            <div className="form-logo">
-              <img src={RollingThreeLogo} alt="Rolling Three" height="100" />
-            </div>
+      <div className="main-content-area">
+        <div className="main-content-header">
+          <div>
+            <h1 className="courses-page-title">My Courses</h1>
+            <p className="courses-page-subtitle">
+              All of your logged continuing education courses.
+            </p>
           </div>
-        </header>
+          <div className="header-actions">
+            <Button
+              onClick={() => navigate('/courses/new')}
+            >
+              Add Course
+            </Button>
+          </div>
+        </div>
 
         <main className="form-body">
           {/* <div className="form-eyebrow">{isEditing ? 'Edit Record' : 'New Record'}</div> */}
@@ -488,27 +492,24 @@ export default function CourseForm() {
                     </select>
 
                     {/* Remove row */}
-                    <button
-                      type="button"
-                      className="credit-remove-btn"
+                    <Button
+                      variant="cancel"
                       onClick={() => removeCreditRow(row.id)}
                       disabled={credits.length === 1}
                       aria-label="Remove this credit row"
                       title="Remove"
                     >
                       −
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
 
-              <button
-                type="button"
-                className="add-credit-btn"
+              <Button
                 onClick={addCreditRow}
               >
-                + Add Another Subject
-              </button>
+                Add Another Subject
+              </Button>
             </div>
 
             <hr className="form-divider" />
@@ -521,9 +522,12 @@ export default function CourseForm() {
               {existingCert && !certFile && (
                 <div className="cert-file-row">
                   <span className="cert-file-name">📄 Current certificate on file</span>
-                  <button type="button" className="btn-ghost-sm" onClick={clearFile}>
+                  <Button
+                    onClick={clearFile}
+                    variant="cancel"
+                  >
                     Remove
-                  </button>
+                  </Button>
                 </div>
               )}
 
@@ -556,9 +560,9 @@ export default function CourseForm() {
               {certFile && (
                 <div className="cert-file-row">
                   <span className="cert-file-name">📄 {certFile.name}</span>
-                  <button type="button" className="btn-ghost-sm" onClick={clearFile}>
+                  <Button variant="cancel" onClick={clearFile}>
                     Remove
-                  </button>
+                  </Button>
                 </div>
               )}
 
@@ -603,25 +607,23 @@ export default function CourseForm() {
                   {existingOtherDocs.map((_path, i) => (
                     <div className="cert-file-row" key={`existing-doc-${i}`}>
                       <span className="cert-file-name">📄 Document {i + 1} on file</span>
-                      <button
-                        type="button"
-                        className="btn-ghost-sm"
+                      <Button
                         onClick={() => removeExistingOtherDoc(i)}
+                        variant="cancel"
                       >
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   ))}
                   {otherDocs.map((file, i) => (
                     <div className="cert-file-row" key={`new-doc-${i}`}>
                       <span className="cert-file-name">📄 {file.name}</span>
-                      <button
-                        type="button"
-                        className="btn-ghost-sm"
+                      <Button
                         onClick={() => removeOtherDoc(i)}
+                        variant="cancel"
                       >
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -643,24 +645,21 @@ export default function CourseForm() {
 
             {/* Actions */}
             <div className="form-actions">
-              <button
-                type="button"
-                className="btn-cancel"
+              <Button
                 onClick={() => navigate('/')}
                 disabled={submitting}
+                variant="cancel"
               >
                 Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn-submit"
+              </Button>
+              <Button
                 disabled={submitting}
               >
                 {submitting
                   ? (isEditing ? 'Saving...' : 'Logging...')
                   : (isEditing ? 'Save Changes' : 'Add Course')
                 }
-              </button>
+              </Button>
             </div>
 
           </form>

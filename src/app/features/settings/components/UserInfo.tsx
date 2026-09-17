@@ -7,6 +7,7 @@ import {
   type UserInfo as UserInfoRow,
   type UserInfoUpdate,
 } from '../api/userInfoAPI'
+import { Button } from "../../../shared/components/buttons/Button";
 
 import '../styles/user-info.css';
 
@@ -138,31 +139,26 @@ export default function UserInfo() {
         </div>
         <div className="header-actions">
           {!isEditing ? (
-            <button
-              type="button"
-              className="btn-submit"
+            <Button
               onClick={handleEditClick}
             >
               Edit
-            </button>
+            </Button>
           ) : (
             <>
-              <button
-                type="button"
-                className="btn-cancel"
+              <Button
                 onClick={handleCancel}
                 disabled={isSaving}
+                variant="cancel"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
-                className="btn-submit"
+              </Button>
+              <Button
                 onClick={handleSave}
                 disabled={isSaving}
               >
                 {isSaving ? 'Saving...' : 'Save'}
-              </button>
+              </Button>
             </>
           )}
         </div>

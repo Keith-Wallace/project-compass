@@ -1,11 +1,10 @@
-// src/app/features/courses/components/CourseListPage.tsx
-// /courses — full list of all logged CPE courses.
-
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCourses, deleteCourse } from '../api/coursesAPI'
 import type { Course } from '../api/coursesAPI'
 import CourseList from './CourseList'
+import { Button } from "../../../shared/components/buttons/Button";
+
 import '../styles/course-list-page.css'
 
 
@@ -49,33 +48,20 @@ export default function CourseListPage() {
 
   return (
     <>
-      <header className="form-header">
-        {/* <div className="form-header-left">
-          <button className="back-btn" onClick={() => navigate('/')}>
-            ← Back
-          </button>
-          <div className="form-logo">
-            <img src={RollingThreeLogo} alt="Rolling Three" height="100" />
-          </div>
-        </div> */}
-        <div className="header-actions">
-          <button
-            className="btn-primary"
-            onClick={() => navigate('/courses/new')}
-          >
-            + Add Course
-          </button>
-        </div>
-      </header>
-
-      <div className="courses-page">
-        {/* Page header */}
-        <div className="courses-page-header">
+      <div className="main-content-area">
+        <div className="main-content-header">
           <div>
             <h1 className="courses-page-title">My Courses</h1>
             <p className="courses-page-subtitle">
               All of your logged continuing education courses.
             </p>
+          </div>
+          <div className="header-actions">
+            <Button
+              onClick={() => navigate('/courses/new')}
+            >
+              Add Course
+            </Button>
           </div>
         </div>
 
@@ -95,28 +81,20 @@ export default function CourseListPage() {
           <div className="empty-state">
             <p>No courses logged yet.</p>
             <span>Start tracking your continuing education credits.</span>
-            <button
-              className="btn-primary"
+            <Button
               onClick={() => navigate('/courses/new')}
             >
               Add Your First Course
-            </button>
+            </Button>
           </div>
         ) : (
           <CourseList
             courses={courses}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            disabled={submitting}
           />
         )}
-        <button
-          type="button"
-          className="btn-cancel"
-          onClick={() => navigate('/')}
-          disabled={submitting}
-        >
-          Cancel
-        </button>
       </div>
     </>
   )

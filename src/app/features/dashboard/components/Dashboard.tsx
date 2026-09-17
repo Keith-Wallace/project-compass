@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCourses, deleteCourse, type Course } from '../../courses/api/coursesAPI'
 import CourseList from '../../courses/components/CourseList'
-
 import { useAuth } from '../../auth/hooks/useAuth';
+import { Button } from "../../../shared/components/buttons/Button";
 
 import '../styles/dashboard.css'
 
@@ -68,13 +68,6 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-body">
-      {/* Page-level title row. Logo, the "Credentials" quick-nav button,
-          and Sign out previously lived in this page's own header — all
-          removed now that AppLayout provides TopNav + SideNav (Credentials
-          is already a permanent SideNav item, so that button was fully
-          redundant). Sign out temporarily lives here inline until TopNav's
-          avatar gets a real account/logout menu — flag if you want that
-          built now instead of deferred. */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', marginBottom: '24px' }}>
         <div>
           <h1 className="dashboard-title">My CPE Dashboard</h1>
@@ -83,12 +76,11 @@ export default function Dashboard() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
-          <button className="btn-primary" onClick={() => navigate('/courses/new')}>
-            + Add Course
-          </button>
-          {/* <button className="btn-logout" onClick={handleLogout}>
-            Sign out
-          </button> */}
+          <Button
+            onClick={() => navigate('/courses/new')}
+          >
+            Add Course
+          </Button>
         </div>
       </div>
 
@@ -125,9 +117,9 @@ export default function Dashboard() {
         <div className="section-header-right">
           <span className="section-count">{courses.length} records</span>
           {courses.length > 0 && (
-            <button className="btn-link" onClick={() => navigate('/courses')}>
-              View All →
-            </button>
+            <a className="btn-link" onClick={() => navigate('/courses')}>
+              View All
+            </a>
           )}
         </div>
       </div>
@@ -138,9 +130,9 @@ export default function Dashboard() {
         <div className="empty-state">
           <p>No courses logged yet.</p>
           <span>Start tracking your continuing education credits.</span>
-          <button className="btn-primary" onClick={() => navigate('/courses/new')}>
+          <Button onClick={() => navigate('/courses/new')}>
             Add Your First Course
-          </button>
+          </Button>
         </div>
       ) : (
         <CourseList

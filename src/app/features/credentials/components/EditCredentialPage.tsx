@@ -1,8 +1,3 @@
-// src/features/credentials/EditCredentialPage.tsx
-// /credentials/:id/edit
-// Loads the user's specific user_credentials row, pre-fills the form,
-// handles update and delete.
-
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
@@ -13,6 +8,8 @@ import {
 import type { UserCredentialWithDetails } from '../api/credentials.queries'
 import CredentialForm from './CredentialForm'
 import type { CredentialFormValues } from './CredentialForm'
+import { Button } from "../../../shared/components/buttons/Button";
+
 import '../styles/credentials-page.css'
 
 export default function EditCredentialPage() {
@@ -71,9 +68,9 @@ export default function EditCredentialPage() {
     return (
       <div className="state-container">
         <p className="error-text">{idError}</p>
-        <button className="btn-back" onClick={() => navigate('/credentials')}>
+        <Button className="btn-back" onClick={() => navigate('/credentials')}>
           ← Back to Credentials
-        </button>
+        </Button>
       </div>
     )
   }
@@ -90,9 +87,12 @@ export default function EditCredentialPage() {
     return (
       <div className="state-container">
         <p className="error-text">{error ?? 'Credential not found.'}</p>
-        <button className="btn-back" onClick={() => navigate('/credentials')}>
-          ← Back to Credentials
-        </button>
+        <Button
+          onClick={() => navigate('/credentials')}
+          variant="secondary"
+        >
+          Back to Credentials
+        </Button>
       </div>
     )
   }
@@ -107,12 +107,12 @@ export default function EditCredentialPage() {
           </p>
         </div>
         <div className="header-actions">
-          <button
-            className="btn-primary"
+          <Button
             onClick={() => navigate('/credentials')}
+            variant="cancel"
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
 

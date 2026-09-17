@@ -1,6 +1,7 @@
 import { useState, type SubmitEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabase/supabase';
+import { Button } from "../../../shared/components/buttons/Button";
 
 import '../styles/login.css'
 
@@ -42,7 +43,6 @@ export default function Login() {
 
   return (
     <div className="login-root">
-
       <main className="login-body">
         <div className="login-card">
           <div className="login-eyebrow">Welcome back</div>
@@ -78,24 +78,30 @@ export default function Login() {
                 required
               />
             </div>
-
-            <button
+            
+            <Button
+              disabled={submitting}
+              type="submit"
+            >
+              {submitting ? 'Signing in...' : 'Sign in'}
+            </Button>
+            {/* <button
               type="submit"
               className="btn-login"
               disabled={submitting}
             >
               {submitting ? 'Signing in...' : 'Sign in'}
-            </button>
+            </button> */}
           </form>
           <p className="login-signup-link">
             Don&apos;t have an account?{' '}
-            <button
+            <a
               type="button"
               className="btn-link"
               onClick={() => navigate('/signup')}
             >
               Sign up now
-            </button>
+            </a>
           </p>
         </div>
       </main>

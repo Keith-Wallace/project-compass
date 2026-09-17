@@ -1,0 +1,79 @@
+:root {
+  --ink: #0D1B4B;
+  --ink-hover: #16295F;
+  --ink-press: #081332;
+
+  --ledger-500: #1DC8A8;
+  --ledger-700: #148C76;
+  --ledger-800: #106B5A;
+  --ledger-900: #0A473C;
+
+  --oxblood: #6B2737;
+  --oxblood-hover: #7D2E41;
+  --oxblood-press: #591F2D;
+
+  --brass: #B08D57;
+  --manila: #E8D9B5;
+  --paper: #F5F1E8;
+
+  --ink-40: rgba(13, 27, 75, 0.4);
+  --text-muted: #6B6555;
+}
+
+.button {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 10px 18px;
+  min-width: 125px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+  margin-bottom: 1rem;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+.button-primary {
+  background: var(--ledger-800);
+  color: var(--paper);
+}
+
+.button-primary:hover, .button-primary.is-hover { background: var(--ledger-700); }
+.button-primary:active, .button-primary.is-press { background: var(--ledger-900); transform: translateY(1px); }
+.button-primary:disabled, .button-primary.is-disabled {
+  background: var(--ledger-800);
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.button-secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.button-secondary:hover, .button-secondary.is-hover { background: rgba(13, 27, 75, 0.06); }
+.button-secondary:active, .button-secondary.is-press { background: rgba(13, 27, 75, 0.12); transform: translateY(1px); }
+.button-secondary:disabled, .button-secondary.is-disabled {
+  color: var(--ink);
+  border-color: var(--ink);
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.button-cancel {
+  background: transparent;
+  color: var(--oxblood);
+  border-color: var(--oxblood-hover);
+}
+
+.button-cancel:hover, .button-cancel.is-hover { background: rgba(107, 39, 55, 0.08); color: var(--oxblood-hover); }
+.button-cancel:active, .button-cancel.is-press { background: rgba(107, 39, 55, 0.14); color: var(--oxblood-press); transform: translateY(1px); }
+.button-cancel:disabled, .button-cancel.is-disabled {
+  color: var(--oxblood);
+  opacity: 0.35;
+  cursor: not-allowed;
+}
