@@ -21,7 +21,6 @@
 }
 
 .button {
-  font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   font-weight: 600;
   padding: 10px 18px;
@@ -68,7 +67,7 @@
 .button-cancel {
   background: transparent;
   color: var(--oxblood);
-  border-color: transparent;
+  border-color: var(--oxblood-hover);
 }
 
 .button-cancel:hover, .button-cancel.is-hover { background: rgba(107, 39, 55, 0.08); color: var(--oxblood-hover); }

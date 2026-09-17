@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Course, CourseCategoryCredit } from '../api/coursesAPI'
+import { Button } from "../../../shared/components/buttons/Button";
 
 import '../styles/course-list.css'
 
@@ -7,9 +8,10 @@ interface CourseListProps {
   courses: Course[]
   onEdit: (course: Course) => void
   onDelete: (id: string) => Promise<void>
+  disabled: boolean
 }
 
-export default function CourseList({ courses, onEdit, onDelete }: CourseListProps) {
+export default function CourseList({ courses, onEdit, onDelete, disabled }: CourseListProps) {
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -56,12 +58,12 @@ export default function CourseList({ courses, onEdit, onDelete }: CourseListProp
             {confirmId === course.id && (
               <div className="confirm-overlay">
                 <span className="confirm-text">Delete this course?</span>
-                <button className="btn-confirm-delete" onClick={() => handleConfirmDelete(course.id)}>
+                <Button variant="cancel" onClick={() => handleConfirmDelete(course.id)}>
                   Delete
-                </button>
-                <button className="btn-cancel" onClick={handleCancel}>
+                </Button>
+                <Button variant="secondary" onClick={handleCancel}>
                   Cancel
-                </button>
+                </Button>
               </div>
             )}
 
@@ -97,8 +99,8 @@ export default function CourseList({ courses, onEdit, onDelete }: CourseListProp
             </div>
 
             <div className="course-actions">
-              <button className="btn-edit" onClick={() => onEdit(course)}>Edit</button>
-              <button className="btn-delete" onClick={() => handleDeleteClick(course.id)}>✕</button>
+              <Button onClick={() => onEdit(course)}>Edit</Button>
+              <Button variant="cancel" onClick={() => handleDeleteClick(course.id)}>✕</Button>
             </div>
           </div>
         ))}
