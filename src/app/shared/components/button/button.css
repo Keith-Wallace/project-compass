@@ -1,0 +1,82 @@
+:root {
+  --ink: #0D1B4B;
+  --ink-hover: #16295F;
+  --ink-press: #081332;
+
+  --ledger-500: #1DC8A8;
+  --ledger-700: #148C76;
+  --ledger-800: #106B5A;
+  --ledger-900: #0A473C;
+
+  --oxblood: #6B2737;
+  --oxblood-hover: #7D2E41;
+  --oxblood-press: #591F2D;
+
+  --brass: #B08D57;
+  --manila: #E8D9B5;
+  --paper: #F5F1E8;
+
+  --ink-10: rgba(13, 27, 75, 0.1);
+  --ink-40: rgba(13, 27, 75, 0.4);
+  --text-muted: #6B6555;
+}
+
+button.button {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 6px 16px;
+  min-width: 125px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+  cursor: default;
+  text-align: center;
+}
+
+button.button:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+button.button-primary {
+  background: var(--ledger-800);
+  color: var(--paper);
+}
+
+button.button-primary:hover, button.button-primary.is-hover { background: var(--ledger-700); }
+button.button-primary:active, button.button-primary.is-press { background: var(--ledger-900); transform: translateY(1px); }
+button.button-primary:disabled, button.button-primary.is-disabled {
+  background: var(--ledger-800);
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+button.button-secondary {
+  background: transparent;
+  background-color: var(--ink-10);
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+button.button-secondary:hover, button.button-secondary.is-hover { background: rgba(13, 27, 75, 0.06); }
+button.button-secondary:active, button.button-secondary.is-press { background: rgba(13, 27, 75, 0.12); transform: translateY(1px); }
+button.button-secondary:disabled, button.button-secondary.is-disabled {
+  color: var(--ink);
+  border-color: var(--ink);
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+button.button-cancel {
+  background: transparent;
+  color: var(--oxblood);
+  border-color: var(--oxblood-hover);
+}
+
+button.button-cancel:hover, button.button-cancel.is-hover { background: rgba(107, 39, 55, 0.08); color: var(--oxblood-hover); }
+button.button-cancel:active, button.button-cancel.is-press { background: rgba(107, 39, 55, 0.14); color: var(--oxblood-press); transform: translateY(1px); }
+button.button-cancel:disabled, button.button-cancel.is-disabled {
+  color: var(--oxblood);
+  opacity: 0.35;
+  cursor: not-allowed;
+}
