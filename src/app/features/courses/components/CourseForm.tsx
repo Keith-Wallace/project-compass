@@ -497,7 +497,6 @@ export default function CourseForm() {
                       onClick={() => removeCreditRow(row.id)}
                       disabled={credits.length === 1}
                       aria-label="Remove this credit row"
-                      title="Remove"
                     >
                       −
                     </Button>
