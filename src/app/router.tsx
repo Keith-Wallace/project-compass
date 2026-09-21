@@ -21,6 +21,8 @@ import UserInfo from './features/settings/components/UserInfo'
 
 import AppLayout from './shared/page-layout/AppLayout';
 
+import { StyleGuide } from './style-guide/StyleGuide'
+
 
 // Auth guard only — no layout knowledge. Renders <Outlet /> so it can
 // wrap either a single route or, via AppLayout below, a whole nested
@@ -54,6 +56,7 @@ export default function AppRouter() {
           <Route path="/auth/confirmed" element={<ConfirmedEmail />} />
           <Route path="/legal/terms" element={<Terms />} />
           <Route path="/legal/privacy" element={<Privacy />} />
+          <Route path="/style-guide" element={<StyleGuide />} />
         </Route>
 
         <Route element={<ProtectedRoute />}>
