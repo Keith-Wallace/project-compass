@@ -5,10 +5,13 @@ import clsx from 'clsx';
 import "./button.css";
 
 type ButtonVariant = "primary" | "secondary" | "cancel";
+type ButtonType = 'button' | 'submit' | 'reset';
 
-type ButtonProps = ComponentProps<typeof MantineButton> & {
+type ButtonProps = Omit<ComponentProps<typeof MantineButton>, 'type'> & {
   children?: ReactNode;
   className?: string;
+  disabled?: boolean;
+  type?: ButtonType;
   variant?: ButtonVariant;
 };
 
