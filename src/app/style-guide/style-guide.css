@@ -1,0 +1,109 @@
+:root {
+  --ink: #0D1B4B;
+
+  --ledger-500: #1DC8A8;
+  --ledger-700: #148C76;
+  --ledger-800: #106B5A;
+  --ledger-900: #0A473C;
+
+  --oxblood: #6B2737;
+  --oxblood-hover: #7D2E41;
+  --oxblood-press: #591F2D;
+
+  --brass: #B08D57;
+  --manila: #E8D9B5;
+  --paper: #F5F1E8;
+
+  --ink-40: rgba(13, 27, 75, 0.4);
+  --text-muted: #6B6555;
+}
+
+* { box-sizing: border-box; }
+
+.button-style-guide {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 40px 80px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ---- header ---- */
+.button-style-guide__header {
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 20px;
+  margin-bottom: 40px;
+}
+
+.button-style-guide__header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.button-style-guide__header p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 60ch;
+}
+
+/* ---- variant table ---- */
+.button-style-guide__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 48px;
+}
+
+.button-style-guide__table th,
+.button-style-guide__table td {
+  text-align: left;
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--manila);
+}
+
+.button-style-guide__table thead th {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--brass);
+}
+
+.button-style-guide__table tbody th[scope="row"] {
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* ---- notes ---- */
+.button-style-guide__notes h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.button-style-guide__notes p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+  max-width: 60ch;
+}
+
+.button-style-guide__notes ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.button-style-guide__notes li {
+  margin-bottom: 6px;
+}
