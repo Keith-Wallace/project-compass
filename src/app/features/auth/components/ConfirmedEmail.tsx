@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabase/supabase';
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
+import { Button } from '../../../shared/components/button/Button';
 
 import '../styles/login.css'
 
@@ -47,12 +47,6 @@ export default function ConfirmedEmail() {
 
   return (
     <div className="login-root">
-      <header className="login-header">
-        <div className="login-logo">
-          <img src={RollingThreeLogo} alt="Rolling Three" height={125} />
-        </div>
-      </header>
-
       <main className="login-body">
         <div className="login-card">
           {status === 'checking' && (
@@ -66,9 +60,9 @@ export default function ConfirmedEmail() {
             <>
               <h1 className="login-title">Email confirmed</h1>
               <p className="login-subtitle">Your account is ready to go.</p>
-              <button className="btn-login" onClick={() => navigate('/onboarding')}>
+              <Button onClick={() => navigate('/onboarding')}>
                 Continue
-              </button>
+              </Button>
             </>
           )}
 
@@ -78,17 +72,13 @@ export default function ConfirmedEmail() {
               <p className="login-subtitle">
                 This link may have expired or already been used.
               </p>
-              <button className="btn-login" onClick={() => navigate('/login')}>
+              <Button variant="secondary" onClick={() => navigate('/login')}>
                 Back to login
-              </button>
+              </Button>
             </>
           )}
         </div>
       </main>
-
-      <footer className="login-footer">
-        Rolling Three — continuing education record keeper
-      </footer>
     </div>
   );
 }
