@@ -201,23 +201,6 @@ body {
   cursor: not-allowed;
 }
 
-.btn {
-  height: 34px;
-  padding: 0 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  cursor: pointer;
-}
-
-.btn:hover {
-  background: var(--color-surface-sunken);
-}
-
 /* ---------- Footer ---------- */
 
 .footer {

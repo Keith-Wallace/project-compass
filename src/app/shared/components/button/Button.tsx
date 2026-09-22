@@ -1,4 +1,4 @@
-import { forwardRef, type ComponentProps, type ReactNode } from "react";
+import { forwardRef, type ComponentProps, type ReactNode, type MouseEventHandler } from "react";
 import { UnstyledButton as MantineButton } from "@mantine/core";
 import clsx from 'clsx';
 
@@ -11,6 +11,7 @@ type ButtonProps = Omit<ComponentProps<typeof MantineButton>, 'type'> & {
   children?: ReactNode;
   className?: string;
   disabled?: boolean;
+  onClick?: MouseEventHandler<HTMLButtonElement> | undefined
   type?: ButtonType;
   variant?: ButtonVariant;
 };
@@ -27,6 +28,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     {
       children,
       className,
+      onClick,
       variant = "primary",
       ...otherProps
     },
@@ -36,6 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <MantineButton
         {...otherProps}
         className={clsx(variantClassMap[variant], className)}
+        onClick={onClick}
         ref={ref}
       >
         {children}

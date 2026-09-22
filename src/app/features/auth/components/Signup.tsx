@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabase/supabase';
+import { Button } from '../../../shared/components/button/Button';
 
 import '../styles/signup.css'
 
@@ -217,9 +218,12 @@ export default function Signup() {
               </label>
             </div>
 
-            <button type="submit" className="btn-login" disabled={submitting}>
+            <Button
+              type="submit"
+              disabled={submitting}
+            >
               {submitting ? 'Creating account...' : 'Continue'}
-            </button>
+            </Button>
           </form>
         </div>
       </main>

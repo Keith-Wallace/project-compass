@@ -1,8 +1,7 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { supabase } from '../../../supabase/supabase';
-import RollingThreeLogo from '../../../../assets/rolling-three-whitebg-logo.png'
-
+import { Button } from '../../../shared/components/button/Button';
 import '../styles/login.css'
 
 interface LocationState {
@@ -52,12 +51,6 @@ export default function VerifyEmail() {
 
   return (
     <div className="login-root">
-      <header className="login-header">
-        <div className="login-logo">
-          <img src={RollingThreeLogo} alt="Rolling Three" height={125} />
-        </div>
-      </header>
-
       <main className="login-body">
         <div className="login-card">
           <div className="login-eyebrow">Almost there</div>
@@ -83,16 +76,12 @@ export default function VerifyEmail() {
               />
             </div>
 
-            <button type="submit" className="btn-login" disabled={submitting}>
+            <Button type="submit" disabled={submitting}>
               {submitting ? 'Verifying...' : 'Verify email'}
-            </button>
+            </Button>
           </form>
         </div>
       </main>
-
-      <footer className="login-footer">
-        Rolling Three — continuing education record keeper
-      </footer>
     </div>
   );
 }

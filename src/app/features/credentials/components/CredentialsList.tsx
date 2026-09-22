@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import type { UserCredentialWithDetails } from '../api/credentials.queries'
+import { Button } from "../../../shared/components/button/Button";
+
 import '../styles/credentials-list.css'
 
 interface Props {
@@ -83,15 +85,17 @@ export default function CredentialList({ credentials, onEdit, onDelete, onSubmit
             {confirmId === uc.id && (
               <div className="confirm-overlay">
                 <span className="confirm-text">Remove this credential?</span>
-                <button
-                  className="btn-confirm-delete"
+                <Button
                   onClick={() => handleConfirmDelete(uc.id)}
                 >
                   Remove
-                </button>
-                <button className="btn-cancel" onClick={handleCancel}>
+                </Button>
+                <Button
+                  onClick={handleCancel}
+                  variant="cancel"
+                >
                   Cancel
-                </button>
+                </Button>
               </div>
             )}
 
@@ -130,8 +134,8 @@ export default function CredentialList({ credentials, onEdit, onDelete, onSubmit
 
             {/* Actions */}
             <div className="credential-actions">
-              <button className="btn-edit" onClick={() => onEdit(uc)}>Edit</button>
-              <button className="btn-delete" onClick={() => handleDeleteClick(uc.id)} disabled={onSubmit}>✕</button>
+              <Button onClick={() => onEdit(uc)}>Edit</Button>
+              <Button onClick={() => handleDeleteClick(uc.id)} disabled={onSubmit} variant="cancel">✕</Button>
             </div>
           </div>
         ))}
