@@ -1,9 +1,7 @@
-// src/features/credentials/components/CredentialForm.tsx
-// Shared form used by AddCredentialPage and EditCredentialPage.
-// Handles: Credential Name (read-only), Status, Credential Awarded date.
-
 import { useState } from 'react'
 import type { CredentialWithOrg, CredentialStatusId } from '../api/credentials.queries'
+import { Button } from "../../../shared/components/button/Button";
+
 import styles from '../styles/CredentialForm.module.css'
 
 // ---------------------------------------------------------------------------
@@ -167,48 +165,44 @@ export default function CredentialForm({
       <div className={styles.actions}>
         <div className={styles.actionsLeft}>
           {onDelete && (
-            <button
-              type="button"
-              className={
-                confirmDelete ? styles.btnDeleteConfirm : styles.btnDelete
-              }
+            <Button
+              // className={
+              //   confirmDelete ? styles.btnDeleteConfirm : styles.btnDelete
+              // }
               onClick={handleDelete}
               disabled={deleting}
+              variant="cancel"
             >
               {deleting
                 ? 'Removing…'
                 : confirmDelete
                 ? 'Confirm remove'
                 : 'Remove credential'}
-            </button>
+            </Button>
           )}
           {confirmDelete && !deleting && (
-            <button
-              type="button"
-              className={styles.btnCancel}
+            <Button
               onClick={() => setConfirmDelete(false)}
+              variant="cancel"
             >
               Cancel
-            </button>
+            </Button>
           )}
         </div>
 
         <div className={styles.actionsRight}>
-          <button
-            type="button"
-            className={styles.btnCancel}
+          <Button
             onClick={onCancel}
             disabled={submitting}
+            variant="cancel"
           >
             Cancel
-          </button>
-          <button
-            type="submit"
-            className={styles.btnSubmit}
+          </Button>
+          <Button
             disabled={submitting}
           >
-            {submitting ? 'Saving…' : submitLabel}
-          </button>
+            {submitting ? 'Saving...' : submitLabel}
+          </Button>
         </div>
       </div>
     </form>

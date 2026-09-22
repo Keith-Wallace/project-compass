@@ -51,7 +51,7 @@ export default function CourseListPage() {
       <div className="main-content-area">
         <div className="main-content-header">
           <div>
-            <h1 className="courses-page-title">My Courses</h1>
+            <h1>My Courses</h1>
             <p className="courses-page-subtitle">
               All of your logged continuing education courses.
             </p>
