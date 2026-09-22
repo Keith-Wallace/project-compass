@@ -138,6 +138,7 @@ export default function Dashboard() {
           courses={courses.slice(0, 3)}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          disabled={loading}
         />
       )}
       <DebugAuthState />

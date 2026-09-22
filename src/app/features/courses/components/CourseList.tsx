@@ -58,7 +58,11 @@ export default function CourseList({ courses, onEdit, onDelete, disabled }: Cour
             {confirmId === course.id && (
               <div className="confirm-overlay">
                 <span className="confirm-text">Delete this course?</span>
-                <Button variant="cancel" onClick={() => handleConfirmDelete(course.id)}>
+                <Button
+                  disabled={disabled}
+                  variant="cancel"
+                  onClick={() => handleConfirmDelete(course.id)}
+                >
                   Delete
                 </Button>
                 <Button variant="secondary" onClick={handleCancel}>
