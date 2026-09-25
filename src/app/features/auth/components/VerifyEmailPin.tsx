@@ -1,7 +1,11 @@
-import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { TextInput } from '@mantine/core';
 import { supabase } from '../../../supabase/supabase';
 import { Button } from '../../../shared/components/button/Button';
+import { Form } from '../../../shared/components/form/Form';
+import { verifyEmailPinFormValidation, type VerifyEmailPinFormValues } from './VerifyEmailPin.validation';
+
 import '../styles/login.css'
 
 interface LocationState {
@@ -13,7 +17,6 @@ export default function VerifyEmail() {
   const location = useLocation();
   const email = (location.state as LocationState | null)?.email;
 
-  const [code, setCode] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,18 +27,13 @@ export default function VerifyEmail() {
     return <Navigate to="/login" replace />;
   }
 
-  const handleCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setCode(e.target.value.replace(/\D/g, '').slice(0, 6));
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (values: VerifyEmailPinFormValues) => {
     setSubmitting(true);
     setError(null);
 
     const { error: verifyError } = await supabase.auth.verifyOtp({
       email,
-      token: code,
+      token: values.code,
       type: 'signup',
     });
 
@@ -61,25 +59,33 @@ export default function VerifyEmail() {
 
           {error && <div className="error-banner">{error}</div>}
 
-          <form onSubmit={handleSubmit}>
-            <div className="field-group">
-              <label className="field-label">Verification code</label>
-              <input
-                className="field-input"
-                type="text"
-                inputMode="numeric"
-                value={code}
-                onChange={handleCodeChange}
-                placeholder="123456"
-                required
-                autoFocus
-              />
-            </div>
+          <Form<VerifyEmailPinFormValues>
+            initialValues={{ code: '' }}
+            validation={verifyEmailPinFormValidation}
+            onSubmit={handleSubmit}
+          >
+            {(form) => (
+              <>
+                <div className="field-group">
+                  <TextInput
+                    label="Verification code"
+                    inputMode="numeric"
+                    placeholder="123456"
+                    autoFocus
+                    {...form.getInputProps('code')}
+                    onChange={(event) => {
+                      const digitsOnly = event.currentTarget.value.replace(/\D/g, '').slice(0, 6);
+                      form.setFieldValue('code', digitsOnly);
+                    }}
+                  />
+                </div>
 
-            <Button type="submit" disabled={submitting}>
-              {submitting ? 'Verifying...' : 'Verify email'}
-            </Button>
-          </form>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? 'Verifying...' : 'Verify email'}
+                </Button>
+              </>
+            )}
+          </Form>
         </div>
       </main>
     </div>
