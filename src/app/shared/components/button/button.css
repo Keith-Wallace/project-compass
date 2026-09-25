@@ -26,6 +26,7 @@ button.button {
   font-weight: 600;
   padding: 6px 16px;
   min-width: 125px;
+  width: 175px;
   border-radius: 8px;
   border: 1.5px solid transparent;
   transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;

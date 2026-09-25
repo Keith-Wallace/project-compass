@@ -2,6 +2,8 @@
 import { type ReactNode } from 'react';
 import { useForm, type UseFormReturnType, type UseFormInput } from '@mantine/form';
 
+import './_form-styles.css';
+
 export type FormValidation<TFormValues extends Record<string, any>> =
   UseFormInput<TFormValues>['validate'];
 

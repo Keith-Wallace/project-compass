@@ -1,0 +1,7 @@
+form {
+  width: 400px;
+}
+
+form input:focus  {
+  border-color: var(--ledger-800);
+}
