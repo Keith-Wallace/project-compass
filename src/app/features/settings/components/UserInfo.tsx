@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { TextInput } from '@mantine/core';
+import { type UseFormReturnType } from '@mantine/form';
 import { useAuth } from '../../auth/hooks/useAuth';
 import {
   getUserInfo,
@@ -8,6 +10,10 @@ import {
   type UserInfoUpdate,
 } from '../api/userInfoAPI'
 import { Button } from "../../../shared/components/button/Button";
+import { Form } from '../../../shared/components/form/Form';
+import { Input } from '../../../shared/components/form/Input';
+import { Select } from '../../../shared/components/form/Select';
+import { userInfoFormValidation, type UserInfoFormValues } from './UserInfo.validation';
 
 import '../styles/user-info.css';
 
@@ -45,25 +51,41 @@ const TIME_ZONE_OPTIONS: string[] =
     ? Intl.supportedValuesOf('timeZone')
     : ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles'];
 
-const EMPTY_FORM: UserInfoRow = {
+const EMPTY_FORM_VALUES: UserInfoFormValues = {
   first_name: '',
   last_name: '',
   employer: '',
   company_size: '',
   industry: '',
   job_title: '',
-  email: '',
   secondary_email: '',
   phone_number: '',
   time_zone: '',
   date_format: 'MM/DD/YYYY',
 };
 
+function toFormValues(row: UserInfoRow): UserInfoFormValues {
+  return {
+    first_name: row.first_name,
+    last_name: row.last_name,
+    employer: row.employer ?? '',
+    company_size: row.company_size ?? '',
+    industry: row.industry ?? '',
+    job_title: row.job_title ?? '',
+    secondary_email: row.secondary_email ?? '',
+    phone_number: row.phone_number ?? '',
+    time_zone: row.time_zone ?? '',
+    date_format: row.date_format,
+  };
+}
+
 export default function UserInfo() {
   const { user } = useAuth();
 
-  const [form, setForm] = useState<UserInfoRow>(EMPTY_FORM);
-  const [savedForm, setSavedForm] = useState<UserInfoRow>(EMPTY_FORM);
+  // The fetched row is kept separately from the form's own values —
+  // it's the source for the read-only Email field and for rebuilding
+  // initialValues, but it's never itself bound to a form input.
+  const [userInfoRow, setUserInfoRow] = useState<UserInfoRow | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -75,8 +97,7 @@ export default function UserInfo() {
     (async () => {
       try {
         const data = await getUserInfo(user.id);
-        setForm(data);
-        setSavedForm(data);
+        setUserInfoRow(data);
       } catch (err) {
         setError(toFriendlyUserInfoError(err));
       } finally {
@@ -85,33 +106,23 @@ export default function UserInfo() {
     })();
   }, [user?.id]);
 
-  function handleChange<K extends keyof UserInfoRow>(field: K, value: UserInfoRow[K]) {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  }
-
-  function handleEditClick() {
-    setError(null);
-    setIsEditing(true);
-  }
-
-  function handleCancel() {
-    setForm(savedForm);
-    setError(null);
-    setIsEditing(false);
-  }
-
-  async function handleSave() {
+  async function handleSave(
+    values: UserInfoFormValues,
+    form: UseFormReturnType<UserInfoFormValues>,
+  ) {
     if (!user?.id) return;
     setIsSaving(true);
     setError(null);
 
-    // email is excluded — read-only on this page
-    const { email, ...updates } = form;
-    const payload: UserInfoUpdate = updates;
+    const payload: UserInfoUpdate = values;
 
     try {
       await updateUserInfo(user.id, payload);
-      setSavedForm(form);
+      setUserInfoRow((prev) => (prev ? { ...prev, ...values } : prev));
+      // Moves the form's "reset to" baseline forward to what was just
+      // saved, so a later Cancel reverts here instead of all the way
+      // back to whatever was loaded when the page first mounted.
+      form.setInitialValues(values);
       setIsEditing(false);
     } catch (err) {
       setError(toFriendlyUserInfoError(err));
@@ -130,217 +141,134 @@ export default function UserInfo() {
 
   return (
     <div className="main-content-area">
-      <div className="main-content-header">
-        <div>
-          <h1>User Info</h1>
-          <p className="main-content-header-subtitle">
-            Subtitle copy text TBA
-          </p>
-        </div>
-        <div className="header-actions">
-          {!isEditing ? (
-            <Button
-              onClick={handleEditClick}
-            >
-              Edit
-            </Button>
-          ) : (
-            <>
-              <Button
-                onClick={handleCancel}
-                disabled={isSaving}
-                variant="cancel"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                {isSaving ? 'Saving...' : 'Save'}
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <Form<UserInfoFormValues>
+        initialValues={userInfoRow ? toFormValues(userInfoRow) : EMPTY_FORM_VALUES}
+        validation={userInfoFormValidation}
+        onSubmit={handleSave}
+      >
+        {(form) => (
+          <>
+            <div className="main-content-header">
+              <div>
+                <h1>User Info</h1>
+                <p className="main-content-header-subtitle">
+                  Subtitle copy text TBA
+                </p>
+              </div>
+              <div className="header-actions">
+                {!isEditing ? (
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setError(null);
+                      setIsEditing(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        form.reset();
+                        setError(null);
+                        setIsEditing(false);
+                      }}
+                      disabled={isSaving}
+                      variant="cancel"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
 
-      <div className="settings-form-wrap">
+            <div className="settings-form-wrap">
+              {error && <div className="error-banner">{error}</div>}
 
-        {/* <div className="settings-toolbar">
-          {!isEditing ? (
-            <button
-              type="button"
-              className="btn-submit"
-              onClick={handleEditClick}
-            >
-              Edit
-            </button>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="btn-cancel"
-                onClick={handleCancel}
-                disabled={isSaving}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn-submit"
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                {isSaving ? 'Saving...' : 'Save'}
-              </button>
-            </>
-          )}
-        </div> */}
+              <div className="settings-card">
+                <div className="field-row">
+                  <Input form={form} name="first_name" label="First Name" disabled={!isEditing} />
+                  <Input form={form} name="last_name" label="Last Name" disabled={!isEditing} />
+                </div>
 
-        {error && <div className="error-banner">{error}</div>}
+                <Input form={form} name="employer" label="Company Name" disabled={!isEditing} />
 
-        <div className="settings-card">
-          <div className="field-row">
-            <Field label="First Name">
-              <input
-                className="field-input"
-                disabled={!isEditing}
-                value={form.first_name}
-                onChange={(e) => handleChange('first_name', e.target.value)}
-              />
-            </Field>
-            <Field label="Last Name">
-              <input
-                className="field-input"
-                disabled={!isEditing}
-                value={form.last_name}
-                onChange={(e) => handleChange('last_name', e.target.value)}
-              />
-            </Field>
-          </div>
+                <div className="field-row">
+                  <Select
+                    form={form}
+                    name="company_size"
+                    label="Company Size"
+                    placeholder="Select..."
+                    data={COMPANY_SIZE_OPTIONS}
+                    disabled={!isEditing}
+                  />
+                  <Select
+                    form={form}
+                    name="industry"
+                    label="Industry"
+                    placeholder="Select..."
+                    data={INDUSTRY_OPTIONS}
+                    disabled={!isEditing}
+                  />
+                </div>
 
-          <Field label="Company Name">
-            <input
-              className="field-input"
-              disabled={!isEditing}
-              value={form.employer ?? ''}
-              onChange={(e) => handleChange('employer', e.target.value)}
-            />
-          </Field>
+                <Input form={form} name="job_title" label="Job Title" disabled={!isEditing} />
 
-          <div className="field-row">
-            <Field label="Company Size">
-              <select
-                className="field-select"
-                disabled={!isEditing}
-                value={form.company_size ?? ''}
-                onChange={(e) => handleChange('company_size', e.target.value)}
-              >
-                <option value="">Select...</option>
-                {COMPANY_SIZE_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Industry">
-              <select
-                className="field-select"
-                disabled={!isEditing}
-                value={form.industry ?? ''}
-                onChange={(e) => handleChange('industry', e.target.value)}
-              >
-                <option value="">Select...</option>
-                {INDUSTRY_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
+                <div className="field-group">
+                  <TextInput
+                    label="Email"
+                    disabled
+                    value={userInfoRow?.email ?? ''}
+                  />
+                  <p className="field-hint">
+                    To change your email, visit Security Settings.
+                  </p>
+                </div>
 
-          <Field label="Job Title">
-            <input
-              className="field-input"
-              disabled={!isEditing}
-              value={form.job_title ?? ''}
-              onChange={(e) => handleChange('job_title', e.target.value)}
-            />
-          </Field>
+                <Input
+                  form={form}
+                  name="secondary_email"
+                  type="email"
+                  label="Secondary Email"
+                  placeholder="For account recovery"
+                  disabled={!isEditing}
+                />
 
-          <Field label="Email">
-            <input className="field-input" disabled value={form.email} />
-            <p className="field-hint">
-              To change your email, visit Security Settings.
-            </p>
-          </Field>
+                <Input form={form} name="phone_number" label="Phone Number" disabled={!isEditing} />
 
-          <Field label="Secondary Email">
-            <input
-              type="email"
-              className="field-input"
-              disabled={!isEditing}
-              value={form.secondary_email ?? ''}
-              onChange={(e) => handleChange('secondary_email', e.target.value)}
-              placeholder="For account recovery"
-            />
-          </Field>
+                <hr className="form-divider" />
 
-          <Field label="Phone Number">
-            <input
-              className="field-input"
-              disabled={!isEditing}
-              value={form.phone_number ?? ''}
-              onChange={(e) => handleChange('phone_number', e.target.value)}
-            />
-          </Field>
-
-          <hr className="form-divider" />
-
-          <div className="field-row">
-            <Field label="Time Zone">
-              <select
-                className="field-select"
-                disabled={!isEditing}
-                value={form.time_zone ?? ''}
-                onChange={(e) => handleChange('time_zone', e.target.value)}
-              >
-                <option value="">Select...</option>
-                {TIME_ZONE_OPTIONS.map((tz) => (
-                  <option key={tz} value={tz}>
-                    {tz}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Date Format">
-              <select
-                className="field-select"
-                disabled={!isEditing}
-                value={form.date_format}
-                onChange={(e) => handleChange('date_format', e.target.value)}
-              >
-                {DATE_FORMAT_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="field-group">
-      <label className="field-label">{label}</label>
-      {children}
+                <div className="field-row">
+                  <Select
+                    form={form}
+                    name="time_zone"
+                    label="Time Zone"
+                    placeholder="Select..."
+                    data={TIME_ZONE_OPTIONS}
+                    disabled={!isEditing}
+                  />
+                  <Select
+                    form={form}
+                    name="date_format"
+                    label="Date Format"
+                    data={DATE_FORMAT_OPTIONS}
+                    disabled={!isEditing}
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </Form>
     </div>
   );
 }
