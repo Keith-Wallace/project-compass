@@ -1,7 +1,13 @@
 form {
-  width: 400px;
+  min-width: 600px;
 }
 
 form input:focus  {
   border-color: var(--ledger-800);
 }
+
+.mantine-Select-option[data-combobox-selected],
+.mantine-Autocomplete-option[data-combobox-selected] {
+  background-color: var(--ledger-800);
+}
+

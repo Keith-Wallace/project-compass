@@ -4,7 +4,7 @@ import { Input } from '../shared/components/form/Input';
 import { Form, type FormValidation } from '../shared/components/form/Form';
 import { Select } from '../shared/components/form/Select';
 import { RadioGroup } from '../shared/components/form/RadioGroup';
-import { FormAutocomplete } from '../shared/components/form/FormAutoComplete';
+import { FormAutoComplete } from '../shared/components/form/FormAutoComplete';
 import { MultiSelect } from '../shared/components/form/MultiSelect';
 import { TextArea } from '../shared/components/form/TextArea';
 import { FileInput } from '../shared/components/form/FileInput';
@@ -120,7 +120,7 @@ export const StyleGuide = () => {
                         { value: 'phone', label: 'Phone' },
                       ]}
                     />
-                    <FormAutocomplete
+                    <FormAutoComplete
                       form={form}
                       label="Your favorite library"
                       name="favoriteLibrary"
