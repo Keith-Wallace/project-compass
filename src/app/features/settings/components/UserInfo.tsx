@@ -79,6 +79,24 @@ function toFormValues(row: UserInfoRow): UserInfoFormValues {
   };
 }
 
+// The inverse of toFormValues: converts the form's '' (empty/unselected)
+// representation back to null for the nullable DB columns, so an unset
+// optional field satisfies its CHECK constraint instead of violating it.
+function toUpdatePayload(values: UserInfoFormValues): UserInfoUpdate {
+  return {
+    first_name: values.first_name,
+    last_name: values.last_name,
+    employer: values.employer || null,
+    company_size: values.company_size || null,
+    industry: values.industry || null,
+    job_title: values.job_title || null,
+    secondary_email: values.secondary_email || null,
+    phone_number: values.phone_number || null,
+    time_zone: values.time_zone || null,
+    date_format: values.date_format,
+  };
+}
+
 export default function UserInfo() {
   const { user } = useAuth();
 
@@ -114,7 +132,7 @@ export default function UserInfo() {
     setIsSaving(true);
     setError(null);
 
-    const payload: UserInfoUpdate = values;
+    const payload: UserInfoUpdate = toUpdatePayload(values);
 
     try {
       await updateUserInfo(user.id, payload);
@@ -261,6 +279,7 @@ export default function UserInfo() {
                     name="date_format"
                     label="Date Format"
                     data={DATE_FORMAT_OPTIONS}
+                    allowDeselect={false}
                     disabled={!isEditing}
                   />
                 </div>
