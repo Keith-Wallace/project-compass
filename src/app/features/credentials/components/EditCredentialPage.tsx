@@ -7,7 +7,7 @@ import {
 } from '../api/credentials.queries'
 import type { UserCredentialWithDetails } from '../api/credentials.queries'
 import CredentialForm from './CredentialForm'
-import type { CredentialFormValues } from './CredentialForm'
+import type { CredentialFormValues } from './CredentialForm.validation';
 import { Button } from "../../../shared/components/button/Button";
 
 import '../styles/credentials-page.css'
@@ -50,6 +50,12 @@ export default function EditCredentialPage() {
       return
     }
 
+    // TODO(CPE-TRACK): `values` now includes issued_date (required on
+    // the form), but UpdateCredentialInput has no field for it and
+    // updateUserCredential() builds its Supabase payload from named
+    // fields, so it's silently dropped here — safe today, but fragile if
+    // updateUserCredential is ever changed to spread `input` directly.
+    // See the "Add issued_date column" follow-up ticket.
     await updateUserCredential({
       id,
       cycle_end_date: userCredential.cycle_end_date,

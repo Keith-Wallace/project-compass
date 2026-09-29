@@ -1,24 +1,25 @@
-import { Radio as MantineRadio, type RadioGroupProps } from '@mantine/core';
+import { Radio, type RadioGroupProps } from '@mantine/core';
 import { type UseFormReturnType } from '@mantine/form';
+import { type FormFieldName } from './Form';
 
 interface RadioOption {
   value: string;
   label: string;
 }
 
-interface FormRadioGroupProps<T>
-  extends Omit<RadioGroupProps, 'value' | 'onChange' | 'error' | 'children'> {
+interface RadioGroupFieldProps<T>
+  extends Omit<RadioGroupProps, 'value' | 'onChange' | 'error' | 'children' | 'form'> {
   form: UseFormReturnType<T>;
-  name: keyof T & string;
+  name: FormFieldName<T>;
   options: RadioOption[];
 }
 
-export function RadioGroup<T>({ form, name, options, ...rest }: FormRadioGroupProps<T>) {
+export function RadioGroup<T>({ form, name, options, ...rest }: RadioGroupFieldProps<T>) {
   return (
-    <MantineRadio.Group {...form.getInputProps(name)} {...rest}>
+    <Radio.Group {...form.getInputProps(name)} {...rest}>
       {options.map((option) => (
-        <MantineRadio key={option.value} value={option.value} label={option.label} mt="xs" />
+        <Radio key={option.value} value={option.value} label={option.label} mt="xs" />
       ))}
-    </MantineRadio.Group>
+    </Radio.Group>
   );
 }
