@@ -1,14 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { TextInput, type ComboboxItem, type OptionsFilter, type SelectProps } from '@mantine/core'
+import { type ComboboxItem, type OptionsFilter, type SelectProps } from '@mantine/core'
 import { type UseFormReturnType } from '@mantine/form'
 import {
   fetchAllCredentials,
   fetchRequirementRule,
   addUserCredential,
-  fetchAllGoverningAuthoritys
+  fetchAllGoverningAuthoritys,
+  fetchCredentialGoverningAuthorities,
 } from '../api/credentials.queries'
 import type {
+  CredentialGoverningAuthorityLink,
   CredentialWithOrg,
   GoverningAuthority,
   RequirementRule,
@@ -27,6 +29,57 @@ import { STATUS_OPTIONS } from '../api/credentials-status-options';
 import '../../courses/styles/course-form.css'
 
 // ---------------------------------------------------------------------------
+// Governing Authority helpers
+// ---------------------------------------------------------------------------
+
+type AuthorityOption = { value: string; label: string }
+
+// Sort key that ignores leading titles, so "Commonwealth of Kentucky" sorts
+// under K and "State of Alabama" under A, matching how users look for a state.
+function authoritySortKey(name: string) {
+  return name
+    .replace(/^(State of|Commonwealth of the|Commonwealth of|Territory of|United States)\s+/i, '')
+    .toLowerCase()
+}
+
+// Keeps governing_authority_id in step with the selected credential:
+// - exactly one authority -> select it
+// - credential changed -> clear the previous choice, so the user picks again
+// - otherwise, clear a value that no longer belongs to the credential
+// Rendered inside the Form so it can read and set form values.
+function SyncGoverningAuthority({
+  form,
+  options,
+}: {
+  form: UseFormReturnType<AddCredentialFormValues>
+  options: AuthorityOption[]
+}) {
+  const credentialId = form.values.credential_id
+  const current = form.values.governing_authority_id
+  const previousCredentialId = useRef(credentialId)
+
+  useEffect(() => {
+    const credentialChanged = previousCredentialId.current !== credentialId
+    previousCredentialId.current = credentialId
+
+    if (options.length === 1) {
+      if (current !== options[0].value) {
+        form.setFieldValue('governing_authority_id', options[0].value)
+      }
+    } else if (
+      current &&
+      (credentialChanged || !options.some((o) => o.value === current))
+    ) {
+      form.setFieldValue('governing_authority_id', '')
+    }
+  }, [credentialId, options, current, form])
+
+  return null
+}
+
+const NO_AUTHORITIES: AuthorityOption[] = []
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -36,6 +89,7 @@ export default function AddCredentialPage() {
   // Remote data
   const [allCredentials, setAllCredentials] = useState<CredentialWithOrg[]>([])
   const [allGoverningAuthoritys, setAllGoverningAuthoritys] = useState<GoverningAuthority[]>([])
+  const [authorityLinks, setAuthorityLinks] = useState<CredentialGoverningAuthorityLink[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
@@ -54,10 +108,15 @@ export default function AddCredentialPage() {
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
-    Promise.all([fetchAllCredentials(), fetchAllGoverningAuthoritys()])
-      .then(([creds, orgs]) => {
+    Promise.all([
+      fetchAllCredentials(),
+      fetchAllGoverningAuthoritys(),
+      fetchCredentialGoverningAuthorities(),
+    ])
+      .then(([creds, orgs, links]) => {
         setAllCredentials(creds)
         setAllGoverningAuthoritys(orgs)
+        setAuthorityLinks(links)
       })
       .catch(() => setLoadError('Could not load data. Please try again.'))
       .finally(() => setLoadingData(false))
@@ -102,6 +161,62 @@ export default function AddCredentialPage() {
   )
 
   // ---------------------------------------------------------------------------
+  // Governing Authority select: options per credential, search, rendering
+  // ---------------------------------------------------------------------------
+
+  // credential_id -> the authorities that can issue it, sorted for display.
+  const authorityOptionsByCredential = useMemo(() => {
+    const authorityById = new Map(
+      allGoverningAuthoritys.map((a) => [a.governing_authority_id, a])
+    )
+    const byCredential = new Map<string, AuthorityOption[]>()
+    for (const link of authorityLinks) {
+      const authority = authorityById.get(link.governing_authority_id)
+      if (!authority) continue
+      const options = byCredential.get(link.credential_id) ?? []
+      options.push({
+        value: authority.governing_authority_id,
+        label: authority.governing_authority_name,
+      })
+      byCredential.set(link.credential_id, options)
+    }
+    for (const options of byCredential.values()) {
+      options.sort((a, b) =>
+        authoritySortKey(a.label).localeCompare(authoritySortKey(b.label))
+      )
+    }
+    return byCredential
+  }, [allGoverningAuthoritys, authorityLinks])
+
+  const authorityAbbreviationById = useMemo(
+    () =>
+      new Map(
+        allGoverningAuthoritys.map((a) => [a.governing_authority_id, a.abbreviation])
+      ),
+    [allGoverningAuthoritys]
+  )
+
+  // Match on the authority name OR its abbreviation (e.g. "NY").
+  const filterAuthorities: OptionsFilter = ({ options, search }) => {
+    const query = search.toLowerCase().trim()
+    if (!query) return options
+    return (options as ComboboxItem[]).filter((option) => {
+      const abbreviation = authorityAbbreviationById.get(option.value) ?? ''
+      return (
+        option.label.toLowerCase().includes(query) ||
+        abbreviation.toLowerCase().includes(query)
+      )
+    })
+  }
+
+  const renderAuthorityOption: SelectProps['renderOption'] = ({ option }) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, width: '100%' }}>
+      <span>{option.label}</span>
+      <span style={{ opacity: 0.6 }}>{authorityAbbreviationById.get(option.value)}</span>
+    </div>
+  )
+
+  // ---------------------------------------------------------------------------
   // Reset review when any field changes
   // ---------------------------------------------------------------------------
 
@@ -121,16 +236,16 @@ export default function AddCredentialPage() {
   ) {
     setReviewError(null)
 
-    // Governing Body is always derived from the selected credential.
+    // The chosen authority must be one that issues the chosen credential.
+    // (The database enforces this too; this gives a clearer message.)
     const credential = allCredentials.find((c) => c.credential_id === values.credential_id)
-    const authorityName = allGoverningAuthoritys.find(
-      (o) => o.governing_authority_id === credential?.governing_authority_id
-    )?.governing_authority_name
-    if (!credential || !authorityName) {
-      form.setFieldError(
-        'credential_id',
-        'Governing body could not be determined. Please re-select the credential.'
-      )
+    const authorityOptions = authorityOptionsByCredential.get(values.credential_id) ?? []
+    if (!credential) {
+      form.setFieldError('credential_id', 'Please re-select the credential.')
+      return
+    }
+    if (!authorityOptions.some((o) => o.value === values.governing_authority_id)) {
+      form.setFieldError('governing_authority_id', 'Please select a governing authority.')
       return
     }
 
@@ -162,6 +277,7 @@ export default function AddCredentialPage() {
       // ticket; wire it in here once the column exists.
       await addUserCredential({
         credential_id: reviewedValues.credential_id,
+        governing_authority_id: reviewedValues.governing_authority_id,
         status_id: reviewedValues.status_id,
         cycle_start_date: reviewedValues.cycle_start_date,
         cycle_end_date: reviewedValues.cycle_end_date,
@@ -237,6 +353,7 @@ export default function AddCredentialPage() {
         <Form<AddCredentialFormValues>
           initialValues={{
             credential_id: '',
+            governing_authority_id: '',
             issued_date: '',
             status_id: 'STATUS_ACTIVE',
             cycle_start_date: '',
@@ -247,18 +364,18 @@ export default function AddCredentialPage() {
           onValuesChange={resetReview}
         >
           {(form) => {
-            const selectedCredential = allCredentials.find(
-              (c) => c.credential_id === form.values.credential_id
-            )
-            const selectedOrgName =
-              allGoverningAuthoritys.find(
-                (o) => o.governing_authority_id === selectedCredential?.governing_authority_id
-              )?.governing_authority_name ?? ''
+            const authorityOptions =
+              authorityOptionsByCredential.get(form.values.credential_id) ?? NO_AUTHORITIES
+            const hasCredential = !!form.values.credential_id
+            const hasChoice = authorityOptions.length > 1
 
             return (
               <>
+                <SyncGoverningAuthority form={form} options={authorityOptions} />
+
                 {/* 1. Credential Name (searchable; must pick from the list)
-                    and 2. Governing Body (derived, read-only) */}
+                    and 2. Governing Body (selected automatically when the
+                    credential has one authority; user picks when several) */}
                 <div className="field-row">
                   <div className="field-group">
                     <Select
@@ -277,13 +394,27 @@ export default function AddCredentialPage() {
                   </div>
 
                   <div className="field-group field-gov-body">
-                    <TextInput
+                    {/* key: remount when the credential changes. Mantine's Select
+                        keeps its own copy of the displayed text, and clearing the
+                        value to '' doesn't reset it, so the old label lingered. */}
+                    <Select
+                      key={form.values.credential_id || 'no-credential'}
+                      form={form}
+                      name="governing_authority_id"
                       label="Governing Body"
                       withAsterisk
-                      value={selectedOrgName}
-                      disabled
-                      readOnly
-                      placeholder="Determined by credential selection"
+                      searchable={hasChoice}
+                      allowDeselect={false}
+                      disabled={!hasChoice}
+                      placeholder={
+                        !hasCredential
+                          ? 'Determined by credential selection'
+                          : 'Search governing authorities…'
+                      }
+                      nothingFoundMessage="No governing authorities found."
+                      data={authorityOptions}
+                      filter={filterAuthorities}
+                      renderOption={renderAuthorityOption}
                     />
                   </div>
                 </div>

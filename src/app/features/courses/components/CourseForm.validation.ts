@@ -4,9 +4,9 @@ export interface CreditRow {
   id: string;
   category_id: string;
   total_credits: string;
-  // Placeholder for the not-yet-built Credential Focus select. Not
-  // validated and not part of the credit insert payload.
-  credential_focus: string;
+  // credentials.credential_id values picked in the Credential Focus
+  // MultiSelect. Empty is valid (line not applied to any credential).
+  credential_ids: string[];
 }
 
 export interface CourseFormValues {
@@ -24,7 +24,7 @@ export const blankCreditRow = (): CreditRow => ({
   id: crypto.randomUUID(),
   category_id: '',
   total_credits: '',
-  credential_focus: '',
+  credential_ids: [],
 });
 
 export const courseFormValidation: FormValidation<CourseFormValues> = {
