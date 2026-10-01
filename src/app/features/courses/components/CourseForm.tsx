@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { getCategories } from '../../../shared/api/courseCategoriesAPI';
 import type { CourseCategory } from '../../../shared/api/courseCategoriesAPI';
+import { getUserCredentialOptions, type CredentialOption } from '../api/userCredentialsAPI';
 import { supabase } from '../../../supabase/supabase';
 import { Button } from '../../../shared/components/button/Button';
 import { Form } from '../../../shared/components/form/Form';
 import { Input } from '../../../shared/components/form/Input';
 import { Select } from '../../../shared/components/form/Select';
+import { MultiSelect } from '../../../shared/components/form/MultiSelect';
 import { TextArea } from '../../../shared/components/form/TextArea';
 import { FormDropZone } from '../../../shared/components/form/FormDropZone';
 import { ProviderAutocomplete, type Provider } from './ProviderAutocomplete';
@@ -26,6 +28,7 @@ type ExistingCredit = {
   id: string
   category_id: string | null
   credits_earned: number | string
+  course_category_credit_credentials: { credential_id: string }[] | null
 }
 
 type ExistingCourse = {
@@ -45,7 +48,7 @@ function buildCreditRows(existingCredits?: ExistingCredit[]): CreditRow[] {
     id:            c.id,
     category_id:   c.category_id ?? '',
     total_credits: String(c.credits_earned),  // DB column is credits_earned
-    credential_focus: '',
+    credential_ids: (c.course_category_credit_credentials ?? []).map((cc) => cc.credential_id),
   }))
 }
 
@@ -58,6 +61,7 @@ export default function CourseForm() {
   const isEditing      = !!id
 
   const [categories, setCategories]           = useState<CourseCategory[]>([])
+  const [credentialOptions, setCredentialOptions] = useState<CredentialOption[]>([])
   const [initialCredits, setInitialCredits]   = useState<CreditRow[]>([blankCreditRow()])
   const [initialProvider, setInitialProvider] = useState<Provider | null>(null)
   const [isLoadingInitialData, setIsLoadingInitialData] = useState(true)
@@ -77,14 +81,18 @@ export default function CourseForm() {
   useEffect(() => {
     (async () => {
       try {
-        const cats = await getCategories()
+        const [cats, credOptions] = await Promise.all([
+          getCategories(),
+          getUserCredentialOptions(),
+        ])
         setCategories(cats)
+        setCredentialOptions(credOptions)
 
         if (existingCourse) {
           const [creditsResult, providerResult] = await Promise.all([
             supabase
               .from('course_category_credits')
-              .select('*')
+              .select('id, category_id, credits_earned, course_category_credit_credentials(credential_id)')
               .eq('course_id', existingCourse.id),
             existingCourse.provider_id
               ? supabase.from('providers').select('*').eq('id', existingCourse.provider_id).single()
@@ -151,64 +159,50 @@ export default function CourseForm() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('You must be signed in to log a course.')
 
-      const coursePayload = {
-        course_title:     values.title.trim(),
-        provider_id:      values.provider_id,
-        start_date:       values.startDate || null,
-        completion_date:  values.endDate,
-        notes:            values.notes.trim() || null,
-        user_id:          user.id,
-      }
-
-      let courseId = existingCourse?.id
-
-      if (isEditing) {
-        const { error } = await supabase
-          .from('cpe_courses')
-          .update(coursePayload)
-          .eq('id', courseId)
-        if (error) throw error
-      } else {
-        const { data, error } = await supabase
-          .from('cpe_courses')
-          .insert(coursePayload)
-          .select('id')
-          .single()
-        if (error) throw error
-        courseId = data.id
-      }
-
+      // Saves the course, its credit lines, and their credential selections
+      // in one transaction. Returns the course id (new or existing).
+      // See migration 0010.
+      const { data: courseId, error: saveErr } = await supabase.rpc('save_course', {
+        p_course: {
+          course_title:    values.title.trim(),
+          provider_id:     values.provider_id,
+          start_date:      values.startDate || null,
+          completion_date: values.endDate,
+          notes:           values.notes.trim() || null,
+        },
+        p_credits: values.credits.map((r) => ({
+          id:             r.id,
+          category_id:    r.category_id,
+          credits_earned: parseFloat(r.total_credits),
+          credential_ids: r.credential_ids,
+        })),
+        // Left out for new courses, so the database creates one.
+        p_course_id: isEditing ? id : undefined,
+      })
+      if (saveErr) throw saveErr
       if (!courseId) throw new Error('Course ID is missing after save.')
 
+      // Files upload after the database save (storage can't be part of the
+      // transaction). If an upload fails, the course is already saved and
+      // the user can re-attach the file by editing it.
       const certUrl = await uploadCertificate(courseId, values.certFile)
       if (certUrl !== (existingCourse?.certificate_url ?? null)) {
-        await supabase
+        const { error } = await supabase
           .from('cpe_courses')
           .update({ certificate_url: certUrl })
           .eq('id', courseId)
+        if (error) throw error
       }
 
       const otherDocPaths = await uploadOtherDocuments(courseId, values.otherDocs)
       const priorOtherDocs = existingCourse?.other_documents ?? []
       if (JSON.stringify(otherDocPaths) !== JSON.stringify(priorOtherDocs)) {
-        await supabase
+        const { error } = await supabase
           .from('cpe_courses')
           .update({ other_documents: otherDocPaths })
           .eq('id', courseId)
+        if (error) throw error
       }
-
-      if (isEditing) {
-        await supabase.from('course_category_credits').delete().eq('course_id', courseId)
-      }
-      const creditInserts = values.credits.map((r) => ({
-        course_id:      courseId,
-        category_id:    r.category_id,
-        credits_earned: parseFloat(r.total_credits),
-      }))
-      const { error: creditErr } = await supabase
-        .from('course_category_credits')
-        .insert(creditInserts)
-      if (creditErr) throw creditErr
 
       setSuccess(true)
       setTimeout(() => navigate('/'), 1200)
@@ -340,12 +334,22 @@ export default function CourseForm() {
                           />
                         </div>
 
-                        <Select
+                        <MultiSelect
                           form={form}
-                          name={`credits.${i}.credential_focus`}
-                          data={[]}
-                          placeholder="Credential Focus"
-                          disabled
+                          name={`credits.${i}.credential_ids`}
+                          data={credentialOptions}
+                          placeholder={
+                            credentialOptions.length === 0
+                              ? 'No credentials on file'
+                              : row.credential_ids.length === 0
+                                ? 'Credential Focus'
+                                : undefined  // hide once anything is selected
+                          }
+                          aria-label="Credential Focus"
+                          disabled={credentialOptions.length === 0}
+                          searchable
+                          clearable
+                          hidePickedOptions
                         />
 
                         <Button
