@@ -25,6 +25,13 @@ export interface CredentialWithOrg extends Credential {
   governing_authorities: GoverningAuthority
 }
 
+// One row of credential_governing_authorities: an authority that can issue
+// a credential. CPA has 55 of these; every other credential has one.
+export interface CredentialGoverningAuthorityLink {
+  credential_id: string
+  governing_authority_id: string
+}
+
 export interface RequirementRule {
   rule_id: string
   credential_id: string
@@ -70,12 +77,15 @@ export type CredentialStatusId =
 
 export interface AddCredentialInput {
   credential_id: string
+  governing_authority_id: string
   status_id: CredentialStatusId
   cycle_start_date: string
   cycle_end_date: string
 }
 
-export interface UpdateCredentialInput extends Omit<AddCredentialInput, 'credential_id'> {
+// TODO(step 5): governing_authority_id is omitted until the Edit page supports it.
+export interface UpdateCredentialInput
+  extends Omit<AddCredentialInput, 'credential_id' | 'governing_authority_id'> {
   id: string
 }
 
@@ -83,13 +93,20 @@ export interface UpdateCredentialInput extends Omit<AddCredentialInput, 'credent
 // Reads
 // ---------------------------------------------------------------------------
 
+// Embeds of governing_authorities from credentials use the hint
+// `!governing_authority_id`. Since migration 0012 there are two paths between
+// these tables (the credentials.governing_authority_id column and the
+// credential_governing_authorities linking table), and PostgREST rejects an
+// ambiguous embed with PGRST201. The hint picks the column, which returns the
+// same single object as before.
+
 export async function fetchAllCredentials(): Promise<CredentialWithOrg[]> {
   const { data, error } = await supabase
     .from('credentials')
     .select(`
       credential_id, governing_authority_id, credential_name,
       abbreviation, status, credential_type,
-      governing_authorities ( governing_authority_id, governing_authority_name, abbreviation )
+      governing_authorities!governing_authority_id ( governing_authority_id, governing_authority_name, abbreviation )
     `)
     .order('governing_authority_id')
     .order('credential_name')
@@ -110,7 +127,7 @@ export async function fetchCredentialById(
     .select(`
       credential_id, governing_authority_id, credential_name,
       abbreviation, status, credential_type,
-      governing_authorities ( governing_authority_id, governing_authority_name, abbreviation )
+      governing_authorities!governing_authority_id ( governing_authority_id, governing_authority_name, abbreviation )
     `)
     .eq('credential_id', credentialId)
     .single()
@@ -151,7 +168,7 @@ export async function fetchUserCredentials(): Promise<UserCredentialWithDetails[
       credentials (
         credential_id, governing_authority_id, credential_name, abbreviation,
         status, credential_type,
-        governing_authorities ( governing_authority_id, governing_authority_name, abbreviation )
+        governing_authorities!governing_authority_id ( governing_authority_id, governing_authority_name, abbreviation )
       ),
       credential_status_types ( status_name )
     `)
@@ -172,7 +189,7 @@ export async function fetchUserCredentialById(
       credentials (
         credential_id, governing_authority_id, credential_name, abbreviation,
         status, credential_type,
-        governing_authorities ( governing_authority_id, governing_authority_name, abbreviation )
+        governing_authorities!governing_authority_id ( governing_authority_id, governing_authority_name, abbreviation )
       ),
       credential_status_types ( status_name )
     `)
@@ -196,6 +213,7 @@ export async function addUserCredential(input: AddCredentialInput): Promise<void
     .insert({
       user_id: user.id,
       credential_id: input.credential_id,
+      governing_authority_id: input.governing_authority_id,
       status_id: input.status_id,
       cycle_start_date: input.cycle_start_date,
       cycle_end_date: input.cycle_end_date,
@@ -224,6 +242,17 @@ export async function deleteUserCredential(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
+}
+
+// Plain ids only (no embed), joined to fetchAllGoverningAuthoritys() in the
+// page. Avoids the PGRST201 ambiguity noted above.
+export async function fetchCredentialGoverningAuthorities(): Promise<CredentialGoverningAuthorityLink[]> {
+  const { data, error } = await supabase
+    .from('credential_governing_authorities')
+    .select('credential_id, governing_authority_id')
+
+  if (error) throw error
+  return data as CredentialGoverningAuthorityLink[]
 }
 
 export async function fetchAllGoverningAuthoritys(): Promise<GoverningAuthority[]> {
