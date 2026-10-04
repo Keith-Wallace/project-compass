@@ -21,6 +21,8 @@ import UserInfo from './features/settings/components/UserInfo'
 
 import AppLayout from './shared/page-layout/AppLayout';
 
+import DashboardNew from './features/dashboard/components/DashboardNew';
+
 import { StyleGuide } from './style-guide/StyleGuide'
 
 
@@ -71,7 +73,7 @@ export default function AppRouter() {
               newly protected as of 2026-08-25 — they previously had no
               auth guard at all. */}
           <Route element={<AppLayout />}>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard-old" element={<Dashboard />} />
 
             <Route path="/courses" element={<CourseListPage />} />
             <Route path="/courses/new" element={<CourseForm />} />
@@ -82,6 +84,8 @@ export default function AppRouter() {
             <Route path="/credentials/:id/edit" element={<EditCredentialPage />} />
 
             <Route path="/settings/user-info"  element={<UserInfo />} />
+
+            <Route path="/" element={<DashboardNew />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
