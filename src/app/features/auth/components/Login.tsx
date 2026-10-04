@@ -1,27 +1,26 @@
-import { useState, type SubmitEvent, type ChangeEvent } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabase/supabase';
 import { Button } from '../../../shared/components/button/Button';
+import { Form } from '../../../shared/components/form/Form';
+import { Input } from '../../../shared/components/form/Input';
+import { loginFormValidation, type LoginFormValues } from './Login.validation';
 
 import '../styles/login.css'
 
 export default function Login() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
-    console.log('Login.tsx > handleSubmit()')
-    e.preventDefault();
+  const handleSubmit = async (values: LoginFormValues) => {
     setSubmitting(true);
     setError(null);
 
     const { error: authError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
+      email: values.email.trim(),
+      password: values.password,
     });
 
     if (authError) {
@@ -31,14 +30,6 @@ export default function Login() {
     }
 
     navigate('/');
-  };
-
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
   };
 
   return (
@@ -54,39 +45,44 @@ export default function Login() {
 
           {error && <div className="error-banner">{error}</div>}
 
-          <form onSubmit={handleSubmit}>
-            <div className="field-group">
-              <label className="field-label">Email</label>
-              <input
-                className="field-input"
-                type="email"
-                value={email}
-                onChange={handleEmailChange}
-                placeholder="you@example.com"
-                required
-                autoFocus
-              />
-            </div>
+          <Form<LoginFormValues>
+            initialValues={{ email: '', password: '' }}
+            validation={loginFormValidation}
+            onSubmit={handleSubmit}
+          >
+            {(form) => (
+              <>
+                <div className="field-group">
+                  <Input
+                    form={form}
+                    name="email"
+                    type="email"
+                    label="Email"
+                    placeholder="you@example.com"
+                    autoFocus
+                  />
+                </div>
 
-            <div className="field-group">
-              <label className="field-label">Password</label>
-              <input
-                className="field-input"
-                type="password"
-                value={password}
-                onChange={handlePasswordChange}
-                placeholder="••••••••"
-                required
-              />
-            </div>
+                <div className="field-group">
+                  <Input
+                    form={form}
+                    name="password"
+                    type="password"
+                    label="Password"
+                    placeholder="••••••••"
+                  />
+                </div>
 
-            <Button
-              type="submit"
-              disabled={submitting}
-            >
-              {submitting ? 'Signing in...' : 'Sign in'}
-            </Button>
-          </form>
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                >
+                  {submitting ? 'Signing in...' : 'Sign in'}
+                </Button>
+              </>
+            )}
+          </Form>
+
           <p className="login-signup-link">
             Don&apos;t have an account?{' '}
             <a

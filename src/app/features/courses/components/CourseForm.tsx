@@ -1,29 +1,34 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useLocation, useParams } from 'react-router-dom'
-import { getCategories } from '../../../shared/api/courseCategoriesAPI'
-import type { CourseCategory } from '../../../shared/api/courseCategoriesAPI'
-import { supabase } from '../../../supabase/supabase'
-import SelectAutocomplete from '../../../shared/components/form/select-autocomplete'
-import type { Provider } from '../../../shared/components/form/select-autocomplete'
-import { Button } from "../../../shared/components/button/Button";
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { getCategories } from '../../../shared/api/courseCategoriesAPI';
+import type { CourseCategory } from '../../../shared/api/courseCategoriesAPI';
+import { getUserCredentialOptions, type CredentialOption } from '../api/userCredentialsAPI';
+import { supabase } from '../../../supabase/supabase';
+import { Button } from '../../../shared/components/button/Button';
+import { Form } from '../../../shared/components/form/Form';
+import { Input } from '../../../shared/components/form/Input';
+import { Select } from '../../../shared/components/form/Select';
+import { MultiSelect } from '../../../shared/components/form/MultiSelect';
+import { TextArea } from '../../../shared/components/form/TextArea';
+import { FormDropZone } from '../../../shared/components/form/FormDropZone';
+import { ProviderAutocomplete, type Provider } from './ProviderAutocomplete';
+import {
+  courseFormValidation,
+  blankCreditRow,
+  type CourseFormValues,
+  type CreditRow,
+} from './CourseForm.validation';
 
 import '../styles/course-form.css'
 
-// ── helpers ───────────────────────────────────────────────────
 const ACCEPTED_TYPES = ['application/pdf']
 const MAX_FILE_MB    = 10
-
-// ── local types ──────────────────────────────────────────────
-type CreditRow = {
-  id: string
-  category_id: string
-  total_credits: string
-}
 
 type ExistingCredit = {
   id: string
   category_id: string | null
   credits_earned: number | string
+  course_category_credit_credentials: { credential_id: string }[] | null
 }
 
 type ExistingCourse = {
@@ -37,16 +42,13 @@ type ExistingCourse = {
   provider_id?: string | null
 }
 
-type FormErrors = Record<string, string>
-
-const blankCredit = (): CreditRow => ({ id: crypto.randomUUID(), category_id: '', total_credits: '' })
-
 function buildCreditRows(existingCredits?: ExistingCredit[]): CreditRow[] {
-  if (!existingCredits?.length) return [blankCredit()]
+  if (!existingCredits?.length) return [blankCreditRow()]
   return existingCredits.map((c) => ({
     id:            c.id,
     category_id:   c.category_id ?? '',
     total_credits: String(c.credits_earned),  // DB column is credits_earned
+    credential_ids: (c.course_category_credit_credentials ?? []).map((cc) => cc.credential_id),
   }))
 }
 
@@ -58,180 +60,63 @@ export default function CourseForm() {
   const existingCourse = (location.state as { course?: ExistingCourse } | null)?.course || null
   const isEditing      = !!id
 
-  // ── form state ────────────────────────────────────────────
-  const [title,        setTitle]        = useState(existingCourse?.course_title || '')
-  const [provider,     setProvider]     = useState<Provider | null>(null)          // full provider object
-  const [startDate,    setStartDate]    = useState(existingCourse?.start_date?.split('T')[0] || '')
-  const [endDate,      setEndDate]      = useState(existingCourse?.completion_date?.split('T')[0] || '')
-  const [credits,      setCredits]      = useState<CreditRow[]>([blankCredit()])
-  const [notes,        setNotes]        = useState(existingCourse?.notes || '')
-  const [certFile,     setCertFile]     = useState<File | null>(null)
-  const [existingCert, setExistingCert] = useState(existingCourse?.certificate_url || null)
-  const [dragActiveCert, setDragActiveCert] = useState(false)
+  const [categories, setCategories]           = useState<CourseCategory[]>([])
+  const [credentialOptions, setCredentialOptions] = useState<CredentialOption[]>([])
+  const [initialCredits, setInitialCredits]   = useState<CreditRow[]>([blankCreditRow()])
+  const [initialProvider, setInitialProvider] = useState<Provider | null>(null)
+  const [isLoadingInitialData, setIsLoadingInitialData] = useState(true)
 
-  // Additional / supporting documents (optional, multiple files)
-  const [otherDocs,        setOtherDocs]        = useState<File[]>([])   // File[] staged for upload
+  // Already-uploaded files (server-side paths) are kept separate from the
+  // form's own values — the form only ever holds newly staged File objects.
+  const [existingCert, setExistingCert]         = useState<string | null>(existingCourse?.certificate_url || null)
   const [existingOtherDocs, setExistingOtherDocs] = useState<string[]>(existingCourse?.other_documents || [])
-  const [dragActiveDocs,   setDragActiveDocs]   = useState(false)
-  const [docsError,        setDocsError]        = useState('')
 
-  const [categories,   setCategories]   = useState<CourseCategory[]>([])
-  const [submitting,   setSubmitting]   = useState(false)
-  const [errors,       setErrors]       = useState<FormErrors>({})
-  const [fileError,    setFileError]    = useState('')
-  const [success,      setSuccess]      = useState(false)
+  const [submitting,  setSubmitting]  = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [fileError,   setFileError]   = useState('')
+  const [docsError,   setDocsError]   = useState('')
+  const [success,     setSuccess]     = useState(false)
 
-  // ── seed edit data ────────────────────────────────────────
+  // ── load categories + (if editing) existing credits/provider ──
   useEffect(() => {
-    if (!existingCourse) return
+    (async () => {
+      try {
+        const [cats, credOptions] = await Promise.all([
+          getCategories(),
+          getUserCredentialOptions(),
+        ])
+        setCategories(cats)
+        setCredentialOptions(credOptions)
 
-    if (existingCourse.provider_id) {
-      supabase
-        .from('providers')
-        .select('*')
-        .eq('id', existingCourse.provider_id)
-        .single()
-        .then(({ data }: { data: Provider | null }) => { if (data) setProvider(data) })
-    }
+        if (existingCourse) {
+          const [creditsResult, providerResult] = await Promise.all([
+            supabase
+              .from('course_category_credits')
+              .select('id, category_id, credits_earned, course_category_credit_credentials(credential_id)')
+              .eq('course_id', existingCourse.id),
+            existingCourse.provider_id
+              ? supabase.from('providers').select('*').eq('id', existingCourse.provider_id).single()
+              : Promise.resolve({ data: null }),
+          ])
 
-    supabase
-      .from('course_category_credits')
-      .select('*')
-      .eq('course_id', existingCourse.id)
-      .then(({ data }: { data: ExistingCredit[] | null }) => {
-        if (data?.length) setCredits(buildCreditRows(data))
-      })
-  }, [existingCourse])
-
-  // ── load categories ───────────────────────────────────────
-  useEffect(() => {
-    getCategories()
-      .then(setCategories)
-      .catch(err => setErrors(prev => ({ ...prev, submit: err.message })))
+          if (creditsResult.data?.length) {
+            setInitialCredits(buildCreditRows(creditsResult.data as ExistingCredit[]))
+          }
+          if (providerResult.data) {
+            setInitialProvider(providerResult.data as Provider)
+          }
+        }
+      } catch (err) {
+        setSubmitError(err instanceof Error ? err.message : 'Failed to load form data.')
+      } finally {
+        setIsLoadingInitialData(false)
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── credit row handlers ───────────────────────────────────
-  const updateCredit = (rowId: string, field: keyof CreditRow, val: string) =>
-    setCredits(prev => prev.map(r => r.id === rowId ? { ...r, [field]: val } : r))
-
-  const addCreditRow = () =>
-    setCredits(prev => [...prev, blankCredit()])
-
-  const removeCreditRow = (rowId: string) =>
-    setCredits(prev => prev.length === 1 ? prev : prev.filter(r => r.id !== rowId))
-
-  // ── file handler ──────────────────────────────────────────
-  const processCertFile = (file?: File | null) => {
-    setFileError('')
-    if (!file) return
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      setFileError('Only PDF files are accepted.')
-      return
-    }
-    if (file.size > MAX_FILE_MB * 1024 * 1024) {
-      setFileError(`File must be under ${MAX_FILE_MB} MB.`)
-      return
-    }
-    setCertFile(file)
-  }
-
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    processCertFile(e.target.files?.[0])
-    e.target.value = '' // allow re-selecting the same file later
-  }
-
-  const clearFile = () => {
-    setCertFile(null)
-    setExistingCert(null)
-  }
-
-  // Drag-and-drop is just an alternate way to feed processCertFile a file
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
-  const handleCertDragEnter = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragActiveCert(true)
-  }
-  const handleCertDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragActiveCert(false)
-  }
-  const handleCertDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragActiveCert(false)
-    processCertFile(e.dataTransfer.files?.[0])
-  }
-
-  // ── additional documents handlers (optional, multiple) ─────
-  const processOtherDocFiles = (fileList: FileList | null) => {
-    const incoming = Array.from(fileList || [])
-    if (!incoming.length) return
-    setDocsError('')
-
-    const accepted: File[] = []
-    for (const file of incoming) {
-      if (!ACCEPTED_TYPES.includes(file.type)) {
-        setDocsError('Only PDF files are accepted.')
-        continue
-      }
-      if (file.size > MAX_FILE_MB * 1024 * 1024) {
-        setDocsError(`Each file must be under ${MAX_FILE_MB} MB.`)
-        continue
-      }
-      accepted.push(file)
-    }
-    if (accepted.length) setOtherDocs(prev => [...prev, ...accepted])
-  }
-
-  const handleOtherDocsInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    processOtherDocFiles(e.target.files)
-    e.target.value = ''
-  }
-
-  const handleDocsDragEnter = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragActiveDocs(true)
-  }
-  const handleDocsDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragActiveDocs(false)
-  }
-  const handleDocsDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragActiveDocs(false)
-    processOtherDocFiles(e.dataTransfer.files)
-  }
-
-  const removeOtherDoc = (idx: number) =>
-    setOtherDocs(prev => prev.filter((_, i) => i !== idx))
-
-  const removeExistingOtherDoc = (idx: number) =>
-    setExistingOtherDocs(prev => prev.filter((_, i) => i !== idx))
-
-  // ── validation ────────────────────────────────────────────
-  const validate = (): FormErrors => {
-    const e: FormErrors = {}
-    if (!title.trim())  e.title    = 'Course title is required.'
-    if (!provider)      e.provider = 'Please select a provider.'
-    if (!endDate)       e.endDate  = 'Completion date is required.'
-    if (startDate && endDate && startDate > endDate)
-      e.endDate = 'Completion date must be on or after start date.'
-
-    credits.forEach((row, i) => {
-      if (!row.category_id)
-        e[`credit_cat_${i}`] = 'Select a subject.'
-      const val = parseFloat(row.total_credits)
-      if (!row.total_credits || isNaN(val) || val <= 0 || Math.round(val * 10) / 10 !== val)
-        e[`credit_hrs_${i}`] = 'Enter credits in 0.1 increments.'
-    })
-
-    return e
-  }
-
   // ── upload certificate ────────────────────────────────────
-  const uploadCertificate = async (courseId: string) => {
+  const uploadCertificate = async (courseId: string, certFile: File | null) => {
     if (!certFile) return existingCert ?? null
 
     const ext  = certFile.name.split('.').pop()
@@ -246,7 +131,7 @@ export default function CourseForm() {
   }
 
   // ── upload additional/supporting documents ──────────────────
-  const uploadOtherDocuments = async (courseId: string) => {
+  const uploadOtherDocuments = async (courseId: string, otherDocs: File[]) => {
     const paths = [...existingOtherDocs]
 
     for (const file of otherDocs) {
@@ -265,96 +150,89 @@ export default function CourseForm() {
   }
 
   // ── submit ────────────────────────────────────────────────
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    const validation = validate()
-    if (Object.keys(validation).length || !provider) {
-      setErrors(validation)
-      return
-    }
-    setErrors({})
+  const handleSubmit = async (values: CourseFormValues) => {
+    setSubmitError(null)
     setSubmitting(true)
     setSuccess(false)
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
-
       if (!user) throw new Error('You must be signed in to log a course.')
 
-      const coursePayload = {
-        course_title:     title.trim(),
-        provider_id:      provider.id,
-        start_date:       startDate || null,
-        completion_date:  endDate,
-        notes:            notes.trim() || null,
-        user_id:          user.id,
-      }
-
-      let courseId = existingCourse?.id
-
-      if (isEditing) {
-        const { error } = await supabase
-          .from('cpe_courses')
-          .update(coursePayload)
-          .eq('id', courseId)
-        if (error) throw error
-      } else {
-        const { data, error } = await supabase
-          .from('cpe_courses')
-          .insert(coursePayload)
-          .select('id')
-          .single()
-        if (error) throw error
-        courseId = data.id
-      }
-
+      // Saves the course, its credit lines, and their credential selections
+      // in one transaction. Returns the course id (new or existing).
+      // See migration 0010.
+      const { data: courseId, error: saveErr } = await supabase.rpc('save_course', {
+        p_course: {
+          course_title:    values.title.trim(),
+          provider_id:     values.provider_id,
+          start_date:      values.startDate || null,
+          completion_date: values.endDate,
+          notes:           values.notes.trim() || null,
+        },
+        p_credits: values.credits.map((r) => ({
+          id:             r.id,
+          category_id:    r.category_id,
+          credits_earned: parseFloat(r.total_credits),
+          credential_ids: r.credential_ids,
+        })),
+        // Left out for new courses, so the database creates one.
+        p_course_id: isEditing ? id : undefined,
+      })
+      if (saveErr) throw saveErr
       if (!courseId) throw new Error('Course ID is missing after save.')
 
-      // Upload certificate and patch URL
-      const certUrl = await uploadCertificate(courseId)
+      // Files upload after the database save (storage can't be part of the
+      // transaction). If an upload fails, the course is already saved and
+      // the user can re-attach the file by editing it.
+      const certUrl = await uploadCertificate(courseId, values.certFile)
       if (certUrl !== (existingCourse?.certificate_url ?? null)) {
-        await supabase
+        const { error } = await supabase
           .from('cpe_courses')
           .update({ certificate_url: certUrl })
           .eq('id', courseId)
+        if (error) throw error
       }
 
-      // Upload additional/supporting documents and patch the list
-      const otherDocPaths = await uploadOtherDocuments(courseId)
+      const otherDocPaths = await uploadOtherDocuments(courseId, values.otherDocs)
       const priorOtherDocs = existingCourse?.other_documents ?? []
       if (JSON.stringify(otherDocPaths) !== JSON.stringify(priorOtherDocs)) {
-        await supabase
+        const { error } = await supabase
           .from('cpe_courses')
           .update({ other_documents: otherDocPaths })
           .eq('id', courseId)
+        if (error) throw error
       }
-
-      // Replace credit rows: delete old, insert new
-      if (isEditing) {
-        await supabase.from('course_category_credits').delete().eq('course_id', courseId)
-      }
-      const creditInserts = credits.map(r => ({
-        course_id:      courseId,
-        category_id:    r.category_id,
-        credits_earned: parseFloat(r.total_credits),
-      }))
-      const { error: creditErr } = await supabase
-        .from('course_category_credits')
-        .insert(creditInserts)
-      if (creditErr) throw creditErr
 
       setSuccess(true)
       setTimeout(() => navigate('/'), 1200)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
-      setErrors(prev => ({ ...prev, submit: message }))
+      setSubmitError(message)
     } finally {
       setSubmitting(false)
     }
   }
 
-  // ── render ────────────────────────────────────────────────
+  if (isLoadingInitialData) {
+    return (
+      <div className="main-content-area">
+        <main className="form-body">Loading...</main>
+      </div>
+    )
+  }
+
+  const initialValues: CourseFormValues = {
+    title:      existingCourse?.course_title || '',
+    provider_id: initialProvider?.id || '',
+    startDate:  existingCourse?.start_date?.split('T')[0] || '',
+    endDate:    existingCourse?.completion_date?.split('T')[0] || '',
+    notes:      existingCourse?.notes || '',
+    certFile:   null,
+    otherDocs:  [],
+    credits:    initialCredits,
+  }
+
   return (
     <>
       <div className="main-content-area">
@@ -366,22 +244,19 @@ export default function CourseForm() {
             </p>
           </div>
           <div className="header-actions">
-            <Button
-              onClick={() => navigate('/courses/new')}
-            >
+            <Button onClick={() => navigate('/courses/new')}>
               Add Course
             </Button>
           </div>
         </div>
 
         <main className="form-body">
-          {/* <div className="form-eyebrow">{isEditing ? 'Edit Record' : 'New Record'}</div> */}
           <h1 className="form-title">
             {isEditing ? 'Update Course' : 'Add New Course'}
           </h1>
 
-          {errors.submit && (
-            <div className="error-banner">Error: {errors.submit}</div>
+          {submitError && (
+            <div className="error-banner">Error: {submitError}</div>
           )}
           {success && (
             <div className="success-banner">
@@ -389,279 +264,246 @@ export default function CourseForm() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <Form<CourseFormValues>
+            initialValues={initialValues}
+            validation={courseFormValidation}
+            onSubmit={handleSubmit}
+          >
+            {(form) => (
+              <>
+                {/* Course Title */}
+                <div className="field-group">
+                  <Input
+                    form={form}
+                    name="title"
+                    label="Course Title"
+                    placeholder="e.g. Advanced Tax Planning Strategies"
+                    withAsterisk
+                  />
+                </div>
 
-            {/* Course Title */}
-            <div className="field-group">
-              <label className="field-label">
-                Course Title <span className="field-required">*</span>
-              </label>
-              <input
-                className={`field-input${errors.title ? ' field-input--error' : ''}`}
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                placeholder="e.g. Advanced Tax Planning Strategies"
-              />
-              {errors.title && <span className="field-error-msg">{errors.title}</span>}
-            </div>
+                {/* Provider */}
+                <div className="field-group">
+                  <ProviderAutocomplete
+                    form={form}
+                    name="provider_id"
+                    initialProvider={initialProvider}
+                    label="Provider / Sponsor"
+                  />
+                </div>
 
-            {/* Select Autocomplete */}
-            <div className="field-group">
-              <label className="field-label">
-                Provider / Sponsor <span className="field-required">*</span>
-              </label>
-              <SelectAutocomplete value={provider} onChange={setProvider} />
-              {errors.provider && <span className="field-error-msg">{errors.provider}</span>}
-            </div>
-
-            {/* Dates */}
-            <div className="field-row">
-              <div className="field-group">
-                <label className="field-label">Start Date</label>
-                <input
-                  className="field-input"
-                  type="date"
-                  value={startDate}
-                  onChange={e => setStartDate(e.target.value)}
-                />
-              </div>
-              <div className="field-group">
-                <label className="field-label">
-                  Completion Date <span className="field-required">*</span>
-                </label>
-                <input
-                  className={`field-input${errors.endDate ? ' field-input--error' : ''}`}
-                  type="date"
-                  value={endDate}
-                  onChange={e => setEndDate(e.target.value)}
-                />
-                {errors.endDate && <span className="field-error-msg">{errors.endDate}</span>}
-              </div>
-            </div>
-
-            {/* <hr className="form-divider" /> */}
-
-            {/* CPE Credits */}
-            <div className="field-group">
-              <label className="field-label">
-                CPE Credits <span className="field-required">*</span>
-              </label>
-              <div className="credits-list">
-                {credits.map((row, i) => (
-                  <div key={row.id} className="credit-row">
-
-                    {/* Subject / Field of Study */}
-                    <div className="credit-col">
-                      <select
-                        className={`field-select${errors[`credit_cat_${i}`] ? ' field-select--error' : ''}`}
-                        value={row.category_id}
-                        onChange={e => updateCredit(row.id, 'category_id', e.target.value)}
-                        aria-label="Subject / Field of Study"
-                      >
-                        <option value="">Subject / Field of Study</option>
-                        {categories.map(cat => (
-                          <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                      </select>
-                      {errors[`credit_cat_${i}`] && (
-                        <span className="field-error-msg">{errors[`credit_cat_${i}`]}</span>
-                      )}
-                    </div>
-
-                    {/* Total Credits */}
-                    <div className="credit-col">
-                      <input
-                        type="number"
-                        className={`field-input${errors[`credit_hrs_${i}`] ? ' field-input--error' : ''}`}
-                        value={row.total_credits}
-                        onChange={e => updateCredit(row.id, 'total_credits', e.target.value)}
-                        placeholder="Credits"
-                        min="0.1"
-                        step="0.1"
-                        aria-label="Total CPE credits"
-                      />
-                      {errors[`credit_hrs_${i}`] && (
-                        <span className="field-error-msg">{errors[`credit_hrs_${i}`]}</span>
-                      )}
-                    </div>
-                    {/* <div className="credit-col">
-                      <CredentialFocusSelect />
-                    </div> */}
-                    <select className="field-select">
-                      <option value="">Credential Focus</option>
-                    </select>
-
-                    {/* Remove row */}
-                    <Button
-                      variant="cancel"
-                      onClick={() => removeCreditRow(row.id)}
-                      disabled={credits.length === 1}
-                      aria-label="Remove this credit row"
-                    >
-                      −
-                    </Button>
+                {/* Dates */}
+                <div className="field-row">
+                  <div className="field-group">
+                    <Input form={form} name="startDate" type="date" label="Start Date" />
                   </div>
-                ))}
-              </div>
+                  <div className="field-group">
+                    <Input form={form} name="endDate" type="date" label="Completion Date" withAsterisk />
+                  </div>
+                </div>
 
-              <Button
-                onClick={addCreditRow}
-              >
-                Add Another Subject
-              </Button>
-            </div>
+                {/* CPE Credits — fields are bound by array path
+                    (e.g. credits.0.category_id), which is why Input/Select's
+                    `name` accepts FormFieldName<T> instead of just keyof T */}
+                <div className="field-group">
+                  <label className="field-label">
+                    CPE Credits <span className="field-required">*</span>
+                  </label>
+                  <div className="credits-list">
+                    {form.values.credits.map((row, i) => (
+                      <div key={row.id} className="credit-row">
+                        <div className="credit-col">
+                          <Select
+                            form={form}
+                            name={`credits.${i}.category_id`}
+                            placeholder="Subject / Field of Study"
+                            aria-label="Subject / Field of Study"
+                            data={categories.map((cat) => ({ value: cat.id, label: cat.name }))}
+                          />
+                        </div>
 
-            <hr className="form-divider" />
+                        <div className="credit-col">
+                          <Input
+                            form={form}
+                            name={`credits.${i}.total_credits`}
+                            type="number"
+                            placeholder="Credits"
+                            min="0.1"
+                            step="0.1"
+                            aria-label="Total CPE credits"
+                          />
+                        </div>
 
-            {/* Certificate Upload */}
-            <div className="field-group">
-              <label className="field-label">Certificate Attachment</label>
+                        <MultiSelect
+                          form={form}
+                          name={`credits.${i}.credential_ids`}
+                          data={credentialOptions}
+                          placeholder={
+                            credentialOptions.length === 0
+                              ? 'No credentials on file'
+                              : row.credential_ids.length === 0
+                                ? 'Credential Focus'
+                                : undefined  // hide once anything is selected
+                          }
+                          aria-label="Credential Focus"
+                          disabled={credentialOptions.length === 0}
+                          searchable
+                          clearable
+                          hidePickedOptions
+                        />
 
-              {/* Existing cert (edit mode, not replaced) */}
-              {existingCert && !certFile && (
-                <div className="cert-file-row">
-                  <span className="cert-file-name">📄 Current certificate on file</span>
+                        <Button
+                          type="button"
+                          variant="cancel"
+                          onClick={() => form.removeListItem('credits', i)}
+                          disabled={form.values.credits.length === 1}
+                          aria-label="Remove this credit row"
+                        >
+                          −
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button type="button" onClick={() => form.insertListItem('credits', blankCreditRow())}>
+                    Add Another Subject
+                  </Button>
+                </div>
+
+                <hr className="form-divider" />
+
+                {/* Certificate Upload */}
+                <div className="field-group">
+                  <label className="field-label">Certificate Attachment</label>
+
+                  {existingCert && !form.values.certFile && (
+                    <div className="cert-file-row">
+                      <span className="cert-file-name">📄 Current certificate on file</span>
+                      <Button type="button" onClick={() => setExistingCert(null)} variant="cancel">
+                        Remove
+                      </Button>
+                    </div>
+                  )}
+
+                  {!existingCert && !form.values.certFile && (
+                    <FormDropZone
+                      form={form}
+                      name="certFile"
+                      accept={ACCEPTED_TYPES}
+                      maxSize={MAX_FILE_MB * 1024 * 1024}
+                      onReject={setFileError}
+                      className="cert-upload-zone"
+                    >
+                      <span className="cert-upload-icon">📎</span>
+                      <span className="cert-upload-label">Click or drag &amp; drop PDF certificate</span>
+                      <span className="cert-upload-hint">PDF only · max {MAX_FILE_MB} MB</span>
+                    </FormDropZone>
+                  )}
+
+                  {form.values.certFile && (
+                    <div className="cert-file-row">
+                      <span className="cert-file-name">📄 {form.values.certFile.name}</span>
+                      <Button type="button" variant="cancel" onClick={() => form.setFieldValue('certFile', null)}>
+                        Remove
+                      </Button>
+                    </div>
+                  )}
+
+                  {fileError && <span className="field-error-msg">{fileError}</span>}
+                </div>
+
+                {/* Additional / Supporting Documents (optional, multiple) */}
+                <div className="field-group">
+                  <label className="field-label">
+                    Additional Documents <span className="field-optional">(optional)</span>
+                  </label>
+
+                  <FormDropZone
+                    form={form}
+                    name="otherDocs"
+                    multiple
+                    accept={ACCEPTED_TYPES}
+                    maxSize={MAX_FILE_MB * 1024 * 1024}
+                    onReject={setDocsError}
+                    className="cert-upload-zone"
+                  >
+                    <span className="cert-upload-icon">📎</span>
+                    <span className="cert-upload-label">Click or drag &amp; drop supporting documents</span>
+                    <span className="cert-upload-hint">
+                      PDF only · max {MAX_FILE_MB} MB each · multiple files allowed
+                    </span>
+                  </FormDropZone>
+
+                  {(existingOtherDocs.length > 0 || form.values.otherDocs.length > 0) && (
+                    <div className="cert-file-list">
+                      {existingOtherDocs.map((_path, i) => (
+                        <div className="cert-file-row" key={`existing-doc-${i}`}>
+                          <span className="cert-file-name">📄 Document {i + 1} on file</span>
+                          <Button
+                            type="button"
+                            onClick={() => setExistingOtherDocs((prev) => prev.filter((_, idx) => idx !== i))}
+                            variant="cancel"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                      {form.values.otherDocs.map((file, i) => (
+                        <div className="cert-file-row" key={`new-doc-${i}`}>
+                          <span className="cert-file-name">📄 {file.name}</span>
+                          <Button
+                            type="button"
+                            onClick={() =>
+                              form.setFieldValue(
+                                'otherDocs',
+                                form.values.otherDocs.filter((_, idx) => idx !== i),
+                              )
+                            }
+                            variant="cancel"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {docsError && <span className="field-error-msg">{docsError}</span>}
+                </div>
+
+                {/* Notes */}
+                <div className="field-group">
+                  <TextArea
+                    form={form}
+                    name="notes"
+                    label="Notes"
+                    placeholder="Any additional notes about this course..."
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="form-actions">
                   <Button
-                    onClick={clearFile}
+                    type="button"
+                    onClick={() => navigate('/')}
+                    disabled={submitting}
                     variant="cancel"
                   >
-                    Remove
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={submitting}
+                  >
+                    {submitting
+                      ? (isEditing ? 'Saving...' : 'Logging...')
+                      : (isEditing ? 'Save Changes' : 'Add Course')
+                    }
                   </Button>
                 </div>
-              )}
-
-              {/* Upload zone (no file selected yet) */}
-              {!existingCert && !certFile && (
-                <label
-                  className={`cert-upload-zone${dragActiveCert ? ' cert-upload-zone--active' : ''}`}
-                  htmlFor="cert-upload"
-                  onDragOver={handleDragOver}
-                  onDragEnter={handleCertDragEnter}
-                  onDragLeave={handleCertDragLeave}
-                  onDrop={handleCertDrop}
-                >
-                  <span className="cert-upload-icon">📎</span>
-                  <span className="cert-upload-label">
-                    {dragActiveCert ? 'Drop PDF to upload' : 'Click or drag & drop PDF certificate'}
-                  </span>
-                  <span className="cert-upload-hint">PDF only · max {MAX_FILE_MB} MB</span>
-                  <input
-                    id="cert-upload"
-                    type="file"
-                    accept="application/pdf"
-                    className="cert-upload-input"
-                    onChange={handleFile}
-                  />
-                </label>
-              )}
-
-              {/* New file selected */}
-              {certFile && (
-                <div className="cert-file-row">
-                  <span className="cert-file-name">📄 {certFile.name}</span>
-                  <Button variant="cancel" onClick={clearFile}>
-                    Remove
-                  </Button>
-                </div>
-              )}
-
-              {fileError && <span className="field-error-msg">{fileError}</span>}
-            </div>
-
-            {/* Additional / Supporting Documents (optional, multiple) */}
-            <div className="field-group">
-              <label className="field-label">
-                Additional Documents <span className="field-optional">(optional)</span>
-              </label>
-
-              <label
-                className={`cert-upload-zone${dragActiveDocs ? ' cert-upload-zone--active' : ''}`}
-                htmlFor="other-docs-upload"
-                onDragOver={handleDragOver}
-                onDragEnter={handleDocsDragEnter}
-                onDragLeave={handleDocsDragLeave}
-                onDrop={handleDocsDrop}
-              >
-                <span className="cert-upload-icon">📎</span>
-                <span className="cert-upload-label">
-                  {dragActiveDocs
-                    ? 'Drop files to upload'
-                    : 'Click or drag & drop supporting documents'}
-                </span>
-                <span className="cert-upload-hint">
-                  PDF only · max {MAX_FILE_MB} MB each · multiple files allowed
-                </span>
-                <input
-                  id="other-docs-upload"
-                  type="file"
-                  accept="application/pdf"
-                  multiple
-                  className="cert-upload-input"
-                  onChange={handleOtherDocsInput}
-                />
-              </label>
-
-              {(existingOtherDocs.length > 0 || otherDocs.length > 0) && (
-                <div className="cert-file-list">
-                  {existingOtherDocs.map((_path, i) => (
-                    <div className="cert-file-row" key={`existing-doc-${i}`}>
-                      <span className="cert-file-name">📄 Document {i + 1} on file</span>
-                      <Button
-                        onClick={() => removeExistingOtherDoc(i)}
-                        variant="cancel"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
-                  {otherDocs.map((file, i) => (
-                    <div className="cert-file-row" key={`new-doc-${i}`}>
-                      <span className="cert-file-name">📄 {file.name}</span>
-                      <Button
-                        onClick={() => removeOtherDoc(i)}
-                        variant="cancel"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {docsError && <span className="field-error-msg">{docsError}</span>}
-            </div>
-
-            {/* Notes */}
-            <div className="field-group">
-              <label className="field-label">Notes</label>
-              <textarea
-                className="field-textarea"
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-                placeholder="Any additional notes about this course..."
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="form-actions">
-              <Button
-                onClick={() => navigate('/')}
-                disabled={submitting}
-                variant="cancel"
-              >
-                Cancel
-              </Button>
-              <Button
-                disabled={submitting}
-              >
-                {submitting
-                  ? (isEditing ? 'Saving...' : 'Logging...')
-                  : (isEditing ? 'Save Changes' : 'Add Course')
-                }
-              </Button>
-            </div>
-
-          </form>
+              </>
+            )}
+          </Form>
         </main>
       </div>
     </>

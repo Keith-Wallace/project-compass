@@ -1,10 +1,11 @@
 import { FileInput as MantineFileInput, type FileInputProps } from '@mantine/core';
 import { type UseFormReturnType } from '@mantine/form';
+import { type FormFieldName } from './Form';
 
 interface FileInputFieldProps<T>
   extends Omit<FileInputProps, 'value' | 'onChange' | 'error' | 'form'> {
   form: UseFormReturnType<T>;
-  name: keyof T & string;
+  name: FormFieldName<T>;
 }
 
 export function FileInput<T>({ form, name, ...rest }: FileInputFieldProps<T>) {

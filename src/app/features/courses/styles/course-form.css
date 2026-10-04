@@ -26,7 +26,8 @@
 }
 
 .form-body {
-  max-width: 680px;
+  width: 900px;
+  /* max-width: 680px; */
   margin: 0 auto;
   padding: 30px 48px 80px;
 }
@@ -176,7 +177,8 @@
 
 .credit-row {
   display: grid;
-  grid-template-columns: 1fr 100px 200px 36px;
+  /* grid-template-columns: 1fr 100px 200px 36px; */
+  grid-template-columns: 225px 75px auto auto;
   gap: 8px;
   align-items: start;
 }
@@ -259,6 +261,7 @@
 .credits-list .button-cancel {
   padding-left: 0;
   padding-right: 0;
+  width: 50px;
 }
 
 /* ── Responsive ─────────────────────────────────────────── */
