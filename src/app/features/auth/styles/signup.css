@@ -43,3 +43,12 @@
   flex-direction: column;
   gap: 0.75rem;
 }
+
+/* form elements */
+form {
+  min-width: 400px;
+}
+
+form .field-group {
+  max-width: 400px;
+}

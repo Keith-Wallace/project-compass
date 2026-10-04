@@ -76,3 +76,8 @@
   font-size: 12px;
   margin-bottom: 24px;
 }
+
+/* form elements */
+form {
+  min-width: 400px;
+}
