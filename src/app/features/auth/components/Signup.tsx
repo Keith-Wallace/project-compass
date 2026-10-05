@@ -80,6 +80,7 @@ export default function Signup() {
             }}
             validation={signupFormValidation}
             onSubmit={handleSubmit}
+            className='signup-form'
           >
             {(form) => (
               <>

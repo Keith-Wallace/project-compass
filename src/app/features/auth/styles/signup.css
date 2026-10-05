@@ -45,10 +45,10 @@
 }
 
 /* form elements */
-form {
+form.signup-form {
   min-width: 400px;
 }
 
-form .field-group {
+form.signup-form .field-group {
   max-width: 400px;
 }

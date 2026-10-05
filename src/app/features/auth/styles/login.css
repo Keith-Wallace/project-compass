@@ -78,6 +78,6 @@
 }
 
 /* form elements */
-form {
+form.login-form {
   min-width: 400px;
 }
