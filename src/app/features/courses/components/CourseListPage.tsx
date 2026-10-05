@@ -4,6 +4,8 @@ import { getCourses, deleteCourse } from '../api/coursesAPI'
 import type { Course } from '../api/coursesAPI'
 import CourseList from './CourseList'
 import { Button } from "../../../shared/components/button/Button";
+import { GrDocumentDownload } from "react-icons/gr";
+import { MdAdd } from "react-icons/md";
 
 import '../styles/course-list-page.css'
 
@@ -53,14 +55,19 @@ export default function CourseListPage() {
           <div>
             <h1>My Courses & Activities</h1>
             <p className="courses-page-subtitle">
-              All of your logged continuing education courses.
+              All of your logged continuing education courses & activities.
             </p>
           </div>
           <div className="header-actions">
             <Button
               onClick={() => navigate('/courses/new')}
             >
-              Add Course
+              <MdAdd /> Add Course
+            </Button>
+            <Button
+              onClick={() => navigate('/courses/new')}
+            >
+              <GrDocumentDownload /> Download Report
             </Button>
           </div>
         </div>

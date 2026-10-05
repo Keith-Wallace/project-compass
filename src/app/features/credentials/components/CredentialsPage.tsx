@@ -4,6 +4,7 @@ import { fetchUserCredentials, deleteUserCredential } from '../api/credentials.q
 import type { UserCredentialWithDetails } from '../api/credentials.queries'
 import CredentialList from './CredentialsList'
 import { Button } from "../../../shared/components/button/Button";
+import { MdAdd } from "react-icons/md";
 
 
 export default function CredentialsPage() {
@@ -60,7 +61,7 @@ export default function CredentialsPage() {
           <Button
             onClick={() => navigate('/credentials/new')}
           >
-            Add Credential
+            <MdAdd /> Add Credential
           </Button>
         </div>
       </div>

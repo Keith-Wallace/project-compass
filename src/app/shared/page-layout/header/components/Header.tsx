@@ -19,7 +19,7 @@ export default function Header({ isPublic = false }: HeaderProps) {
 					<button className="icon-btn" aria-label="Notifications">
 						<span className="icon" aria-hidden="true">&#128276;</span>
 					</button>
-					<div className="avatar">FL</div>
+					<div className="avatar">FL</div> FirstName LastName
 				</div>
 			)}
     </header>

@@ -357,14 +357,14 @@ export default function AddCredentialPage() {
             Manage your professional credentials.
           </p>
         </div>
-        <div className="header-actions">
+        {/* <div className="header-actions">
           <Button
             type="button"
             onClick={() => navigate('/credentials/new')}
           >
             Add Credential
           </Button>
-        </div>
+        </div> */}
       </div>
 
       <main className="form-body">
