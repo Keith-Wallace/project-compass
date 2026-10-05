@@ -27,9 +27,8 @@
 
 .form-body {
   width: 900px;
-  /* max-width: 680px; */
   margin: 0 auto;
-  padding: 30px 48px 80px;
+  padding: 0 32px 72px;
 }
 
 .form-eyebrow {
@@ -221,6 +220,13 @@
 .cert-upload-icon {
   font-size: 22px;
   line-height: 1;
+  vertical-align: center;
+}
+
+.cert-upload-icon .icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
 }
 
 .cert-upload-label {
@@ -233,6 +239,7 @@
   letter-spacing: 0.08em;
   color: #94A3B8;
   text-transform: uppercase;
+  display: block;
 }
 
 .cert-upload-input {

@@ -11,3 +11,9 @@ form input:focus  {
   background-color: var(--ledger-800);
 }
 
+form input:disabled,
+form select:disabled,
+form input[data-disabled],
+form select[data-disabled] {
+  color: #696969 !important;
+}

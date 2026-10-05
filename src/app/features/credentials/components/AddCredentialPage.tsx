@@ -103,6 +103,13 @@ export default function AddCredentialPage() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
+  // Focus management for the requirements panel.
+  // `reviewCount` goes up on every successful review, so focus moves on the
+  // first review and again on a repeat "Update & Review" (where the panel is
+  // already mounted and nothing else would signal the change).
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [reviewCount, setReviewCount] = useState(0)
+
   // ---------------------------------------------------------------------------
   // Load data on mount
   // ---------------------------------------------------------------------------
@@ -121,6 +128,21 @@ export default function AddCredentialPage() {
       .catch(() => setLoadError('Could not load data. Please try again.'))
       .finally(() => setLoadingData(false))
   }, [])
+
+  // ---------------------------------------------------------------------------
+  // Move focus to the requirements panel after each successful review
+  // ---------------------------------------------------------------------------
+
+  useEffect(() => {
+    if (reviewCount === 0) return
+    const panel = panelRef.current
+    if (!panel) return
+
+    // Scroll separately so it can animate (instant when reduced motion is on).
+    panel.focus({ preventScroll: true })
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    panel.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' })
+  }, [reviewCount])
 
   // ---------------------------------------------------------------------------
   // Credential Name select: options, search filter, and option rendering
@@ -254,6 +276,7 @@ export default function AddCredentialPage() {
       const fetchedRule = await fetchRequirementRule(values.credential_id)
       setRule(fetchedRule)
       setReviewedValues(values)
+      setReviewCount((count) => count + 1)
     } catch {
       setReviewError('Could not load CPE requirements. Please try again.')
     } finally {
@@ -362,6 +385,7 @@ export default function AddCredentialPage() {
           validation={addCredentialValidation}
           onSubmit={handleReview}
           onValuesChange={resetReview}
+          className='credential-form'
         >
           {(form) => {
             const authorityOptions =
@@ -498,6 +522,7 @@ export default function AddCredentialPage() {
               saveError={saveError}
               saving={saving}
               onSave={handleSave}
+              panelRef={panelRef}
             />
           </>
         )}

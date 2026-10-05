@@ -17,6 +17,7 @@ interface FormProps<TFormValues extends Record<string, any>> {
   onSubmit: (values: TFormValues, form: UseFormReturnType<TFormValues>) => void;
   // Fires whenever any field value changes (typing, selecting, setFieldValue).
   onValuesChange?: (values: TFormValues) => void;
+  className?: string;
   children: (form: UseFormReturnType<TFormValues>) => ReactNode;
 }
 
@@ -25,6 +26,7 @@ export function Form<TFormValues extends Record<string, any>>({
   validation,
   onSubmit,
   onValuesChange,
+  className,
   children,
 }: FormProps<TFormValues>) {
   const form = useForm<TFormValues>({
@@ -36,6 +38,7 @@ export function Form<TFormValues extends Record<string, any>>({
 
   return (
     <form
+      className={className}
       onSubmit={form.onSubmit((values) => onSubmit(values, form))}
     >
       {children(form)}

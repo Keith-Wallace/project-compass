@@ -4,6 +4,7 @@ import { getCategories } from '../../../shared/api/courseCategoriesAPI';
 import type { CourseCategory } from '../../../shared/api/courseCategoriesAPI';
 import { getUserCredentialOptions, type CredentialOption } from '../api/userCredentialsAPI';
 import { supabase } from '../../../supabase/supabase';
+import { TbFileUpload } from "react-icons/tb";
 import { Button } from '../../../shared/components/button/Button';
 import { Form } from '../../../shared/components/form/Form';
 import { Input } from '../../../shared/components/form/Input';
@@ -238,7 +239,7 @@ export default function CourseForm() {
       <div className="main-content-area">
         <div className="main-content-header">
           <div>
-            <h1>My Courses</h1>
+            <h1>My Courses & Activities</h1>
             <p className="courses-page-subtitle">
               All of your logged continuing education courses.
             </p>
@@ -268,6 +269,7 @@ export default function CourseForm() {
             initialValues={initialValues}
             validation={courseFormValidation}
             onSubmit={handleSubmit}
+            className='courses-form'
           >
             {(form) => (
               <>
@@ -394,7 +396,7 @@ export default function CourseForm() {
                       onReject={setFileError}
                       className="cert-upload-zone"
                     >
-                      <span className="cert-upload-icon">📎</span>
+                      <span className="cert-upload-icon"><TbFileUpload className="icon" aria-hidden="true" /></span>
                       <span className="cert-upload-label">Click or drag &amp; drop PDF certificate</span>
                       <span className="cert-upload-hint">PDF only · max {MAX_FILE_MB} MB</span>
                     </FormDropZone>
@@ -427,7 +429,7 @@ export default function CourseForm() {
                     onReject={setDocsError}
                     className="cert-upload-zone"
                   >
-                    <span className="cert-upload-icon">📎</span>
+                    <span className="cert-upload-icon"><TbFileUpload className="icon" aria-hidden="true" /></span>
                     <span className="cert-upload-label">Click or drag &amp; drop supporting documents</span>
                     <span className="cert-upload-hint">
                       PDF only · max {MAX_FILE_MB} MB each · multiple files allowed

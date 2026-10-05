@@ -63,6 +63,7 @@ export default function VerifyEmail() {
             initialValues={{ code: '' }}
             validation={verifyEmailPinFormValidation}
             onSubmit={handleSubmit}
+            className='verify-pin-form'
           >
             {(form) => (
               <>

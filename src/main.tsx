@@ -18,6 +18,6 @@ createRoot(document.getElementById('root')!).render(
   <MantineProvider theme={theme}>
     <StrictMode>
       <App />
-    </StrictMode>,
+    </StrictMode>
   </MantineProvider>
 );

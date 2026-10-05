@@ -163,6 +163,7 @@ export default function UserInfo() {
         initialValues={userInfoRow ? toFormValues(userInfoRow) : EMPTY_FORM_VALUES}
         validation={userInfoFormValidation}
         onSubmit={handleSave}
+        className='user-info-form'
       >
         {(form) => (
           <>

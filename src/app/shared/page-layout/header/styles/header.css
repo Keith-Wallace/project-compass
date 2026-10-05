@@ -1,5 +1,5 @@
 header.topbar {
-  height: 78px;
+  height: 100px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -29,8 +29,8 @@ header.topbar {
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: #ebebe9;
   display: flex;
