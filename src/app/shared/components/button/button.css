@@ -79,3 +79,7 @@ button.button-cancel:disabled, button.button-cancel.is-disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
+
+button.button svg {
+  vertical-align: center;
+}

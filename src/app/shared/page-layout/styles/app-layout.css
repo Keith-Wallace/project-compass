@@ -119,7 +119,7 @@ body {
 
 .content {
   flex: 1;
-  padding: 24px 32px;
+  padding: 24px;
   overflow-y: auto;
 }
 
