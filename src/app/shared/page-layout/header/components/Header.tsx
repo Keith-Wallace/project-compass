@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import RollingThreeLogo from '../../../../../assets/rolling-three-whitebg-logo.png';
 import '../styles/header.css';
 
@@ -6,9 +7,13 @@ type HeaderProps = {
 };
 
 export default function Header({ isPublic = false }: HeaderProps) {
+	const navigate = useNavigate()
+
   return (
     <header className="topbar">
-			<img className="page-header-logo" src={RollingThreeLogo} alt="Rolling Three" height="64px" />
+			<a className="btn-link" onClick={() => navigate('/')}>
+				<img className="page-header-logo" src={RollingThreeLogo} alt="Rolling Three" height="72px" />
+			</a>
 			{!isPublic && (
 				<div className="topbar-actions">
 					<button className="icon-btn" aria-label="Notifications">

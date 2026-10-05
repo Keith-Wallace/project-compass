@@ -2,6 +2,7 @@
 // Displays CPE requirements for a selected credential alongside the Add form.
 // Shown after "Review Requirements" is clicked. Contains the Save button.
 
+import { useId, type Ref } from 'react'
 import type { CredentialWithOrg, RequirementRule } from '../api/credentials.queries'
 import styles from '../styles/CredentialRequirementsPanel.module.css'
 
@@ -11,6 +12,8 @@ interface Props {
   saving: boolean
   saveError: string | null
   onSave: () => void
+  // Attached to the panel root so the page can move focus here after a review.
+  panelRef?: Ref<HTMLDivElement>
 }
 
 // ---------------------------------------------------------------------------
@@ -37,9 +40,20 @@ export default function CredentialRequirementsPanel({
   saving,
   saveError,
   onSave,
+  panelRef,
 }: Props) {
+  const headingId = useId()
+
   return (
-    <div className={styles.panel}>
+    // tabIndex -1: focusable from script, but not a stop in the tab order.
+    // role + aria-labelledby give the focused element a name to announce.
+    <div
+      ref={panelRef}
+      className={styles.panel}
+      role="region"
+      aria-labelledby={headingId}
+      tabIndex={-1}
+    >
 
       {/* Credential identity */}
       <div className={styles.panelHeader}>
@@ -55,7 +69,7 @@ export default function CredentialRequirementsPanel({
 
       {/* CPE Requirements */}
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>CPE Requirements</h3>
+        <h3 id={headingId} className={styles.sectionTitle}>CPE Requirements</h3>
 
         {rule ? (
           <div className={styles.rules}>

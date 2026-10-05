@@ -49,6 +49,7 @@ export default function Login() {
             initialValues={{ email: '', password: '' }}
             validation={loginFormValidation}
             onSubmit={handleSubmit}
+            className='login-form'
           >
             {(form) => (
               <>
