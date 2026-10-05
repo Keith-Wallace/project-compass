@@ -86,6 +86,7 @@ export default function CredentialForm({
       }}
       validation={credentialFormValidation}
       onSubmit={handleSubmit}
+      className='credential-form'
     >
       {(form) => (
         // The <form> element itself now comes from the shared Form, so the

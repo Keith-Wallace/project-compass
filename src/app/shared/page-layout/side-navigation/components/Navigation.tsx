@@ -9,7 +9,7 @@ import '../styles/navigation.css';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', end: true, icon: TbDeviceDesktopAnalytics },
-  { to: '/courses', label: 'Courses', icon: FiBookOpen },
+  { to: '/courses', label: 'Courses & Activities', icon: FiBookOpen },
   { to: '/credentials', label: 'Credentials', icon: FiAward },
   {
     to: '/settings',
@@ -53,7 +53,7 @@ export default function Navigation() {
                   <item.icon className="icon" aria-hidden="true" />
                   {item.label}
                 </span>
-                {isExpanded ? <FaCaretDown /> : <FaCaretUp />}
+                {isExpanded ? <FaCaretUp /> : <FaCaretDown />}
               </button>
             ) : (
               <NavLink
