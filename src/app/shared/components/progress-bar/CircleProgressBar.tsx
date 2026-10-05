@@ -1,4 +1,15 @@
 import { useState } from "react";
+import type { ComponentPropsWithoutRef } from "react";
+
+// Extends native div props, so `className`, `style`, `children`, `id`,
+// `data-*`, etc. are typed and optional without listing them here.
+interface CircularProgressBarProps extends ComponentPropsWithoutRef<"div"> {
+  value?: number;
+  max?: number;
+  size?: number;
+  strokeWidth?: number;
+  label?: string;
+}
 
 /**
  * Circular progress indicator.
@@ -15,7 +26,7 @@ export function CircularProgressBar({
   children,
   style,
   ...rest
-}) {
+}: CircularProgressBarProps) {
   const clamped = Math.min(Math.max(value, 0), max);
   const fraction = max > 0 ? clamped / max : 0;
 
