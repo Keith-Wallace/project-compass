@@ -245,8 +245,8 @@ export default function CourseForm() {
             </p>
           </div>
           <div className="header-actions">
-            <Button onClick={() => navigate('/courses/new')}>
-              Add Course
+            <Button variant="cancel" onClick={() => navigate('/courses/')}>
+              Cancel
             </Button>
           </div>
         </div>
@@ -487,7 +487,7 @@ export default function CourseForm() {
                 <div className="form-actions">
                   <Button
                     type="button"
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/courses/')}
                     disabled={submitting}
                     variant="cancel"
                   >

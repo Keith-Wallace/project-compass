@@ -425,11 +425,10 @@ export default function AddCredentialPage() {
                       key={form.values.credential_id || 'no-credential'}
                       form={form}
                       name="governing_authority_id"
-                      label="Governing Body"
+                      label="Governing Authority"
                       withAsterisk
                       searchable={hasChoice}
                       allowDeselect={false}
-                      disabled={!hasChoice}
                       placeholder={
                         !hasCredential
                           ? 'Determined by credential selection'

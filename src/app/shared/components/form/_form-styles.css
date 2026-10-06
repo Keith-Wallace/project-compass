@@ -2,12 +2,16 @@ form {
   min-width: 600px;
 }
 
-form input:focus  {
+form input:focus,
+form .mantine-MultiSelect-input:focus,
+form .mantine-Input-input:focus,
+form .mantine-MultiSelect-input:focus {
   border-color: var(--ledger-800);
 }
 
 .mantine-Select-option[data-combobox-selected],
-.mantine-Autocomplete-option[data-combobox-selected] {
+.mantine-Autocomplete-option[data-combobox-selected],
+.mantine-MultiSelect-option[data-combobox-selected] {
   background-color: var(--ledger-800);
 }
 

@@ -66,11 +66,27 @@
 
 .credential-status {
   border: 1px;
-  background-color: var(--ledger-500);
-  background-color: #5cc48a;
   border-radius: 8px;
   padding: 8px 16px;
+}
+
+.status-on-track .credential-status {
+  /* background-color: var(--ledger-500); */
+  background-color: #5cc48a;
   color: var(--ledger-800);
+}
+
+.status-at-risk .credential-status {
+  color: #E33D31;
+  background-color: #F7E0E1;
+}
+
+.dashboard-wrapper .dashboard-card.status-at-risk .card-header {
+  background-color: #FBF6F6;
+}
+
+.dashboard-card.status-at-risk .card-area [class^='fill-color-'] {
+  color: #E33D31;
 }
 
 .credential-status svg {
@@ -140,9 +156,6 @@
   color: var(--ledger-800);
 }
 
-.progress-values {
-
-}
 
 .progress-value-current {
   display: block;
@@ -160,8 +173,6 @@
   display: block;
   font-size: 0.75rem;
 }
-
-
 
 .card-compliance-rules h3 {
   margin: 0 0 0.75rem;
