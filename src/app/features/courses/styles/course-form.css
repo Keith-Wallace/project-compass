@@ -177,7 +177,8 @@
 .credit-row {
   display: grid;
   /* grid-template-columns: 1fr 100px 200px 36px; */
-  grid-template-columns: 225px 75px auto auto;
+  /* grid-template-columns: 225px 75px auto auto; */
+  grid-template-columns: 225px 100px 500px auto;;
   gap: 8px;
   align-items: start;
 }
