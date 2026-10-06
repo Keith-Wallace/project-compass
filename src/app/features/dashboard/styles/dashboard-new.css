@@ -89,9 +89,13 @@
   color: #E33D31;
 }
 
+.dashboard-card.status-at-risk .card-compliance-rules li svg {
+  color: #E33D31;
+}
+
 .credential-status svg {
   vertical-align: center;
-  margin-right: 8px;
+  /* margin-right: 8px; */
 }
 /* .dashboard-wrapper .dashboard-card .card-header div, */
 /* .dashboard-wrapper .dashboard-card .card-area div {
@@ -201,4 +205,13 @@
   flex-shrink: 0;      /* keeps the icon from squishing when text wraps */
   font-size: 1.5rem;   /* react-icons size to 1em */
   color: #5cc48a;      /* icons use fill: currentColor */
+}
+
+
+button.button,
+.credential-status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 }
