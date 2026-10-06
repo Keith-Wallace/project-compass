@@ -84,7 +84,7 @@ export default function DashboardNew() {
         <div>
           <h1>My Dashboard</h1>
           <p className="header-subtitle">
-            All of your logged continuing education courses.
+            Compliance at a glance
           </p>
         </div>
         <div className="header-actions">
@@ -115,7 +115,6 @@ export default function DashboardNew() {
                   credential.onTrack
                   ? <><FaCheckCircle aria-hidden='true' /> On Track</>
                   : <><FaExclamationCircle aria-hidden='true' /> At Risk</>
-
                 }
               </div>
             </div>
@@ -148,7 +147,14 @@ export default function DashboardNew() {
                 <ul role='list'>
                   {
                     credential.cpe_rules.map((cpeRule) => (
-                      <li><FaCheckCircle aria-hidden='true' />{cpeRule}</li>
+                      <li>
+                        {
+                          credential.onTrack
+                          ? <FaCheckCircle aria-hidden='true' />
+                          : <FaExclamationCircle aria-hidden='true' />
+                        }
+                        {cpeRule}
+                      </li>
                     ))
                   }
                 </ul>
